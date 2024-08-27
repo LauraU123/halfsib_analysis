@@ -52,12 +52,12 @@ rule recode:
     message:
         """Recode bim, bam and fam to ped"""
     input:
-        input = rules.filter.output
+        input_ = rules.filter.output
     output:
-        a = outputdir + "recoded.ped",
+        output = outputdir + "recoded.ped",
     shell:
         """
-        plink --recode 12 --bfile {input.input} --tab --out {output.a} --chr-set 29
+        plink --recode 12 --bfile {input.input_} --tab --out {output.output} --chr-set 29
         """
 
 rule rename_genes:
@@ -79,15 +79,19 @@ rule halfsib:
     message:
         """Find common halfsibs from input files"""
     input:
-        filtered_file = rules.recode.output.a
+        ped = rules.recode.output.a,
+        gene_map = rules.rename_genes.output.output
     output:
         common_sequences = "results/{example}/{config.chromosomes}_output.csv"
     shell:
         """
         python3 code/halfsib_v2.py \
-        --input {input.filtered_file} \
+        --ped {input.ped} \
+        --markers {input.gene_map} \
         --output {output.common_sequences} 
         """
+
+
 
 rule locations:
     message:
@@ -102,6 +106,7 @@ rule locations:
         --input {input.input_} \
         --output {output.output}
         """
+
 
 rule homozygosity:
     message:

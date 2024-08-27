@@ -6,9 +6,6 @@ chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", 
 
 #note to self
 
-"""
-1.  add ratio options of longest I to length of string.  
-"""
 def map_file(filepath):
     """
     Outputs a dictionary mapping marker names to their respective positions.
@@ -21,6 +18,7 @@ def map_file(filepath):
             entry = split_loc[4]
             loc_dict[key] = entry
     return loc_dict
+
 
 def specific_chr_map(dict_, chr):
     """Return map of specific chromosome"""
@@ -47,7 +45,7 @@ def character_match(char1, char2):
     ignored_mismatches = {"N": {"A", "B"}, "A": {"N"}, "B": {"N"}}
     return char1 == char2 or (char1 in ignored_mismatches and char2 in ignored_mismatches[char1])
 
-def find_common_subsequences(input_file, min_common_length=10, fuse_adjacent=True):
+def find_common_subsequences(input_file, min_common_length=5, fuse_adjacent=True):
     """
     Identifies common subsequences across all haplotypes in the input file.
     Optionally fuses adjacent subsequences separated by one or two positions.
@@ -94,7 +92,6 @@ def find_where_different(comparison_file, common_sequences, max_identical_ratio=
     filtered_sequences = {}
 
     for loc, sequence in common_sequences.items():
-        #print(loc-1, len(sequence))
         short_haplotypes = [haplo[loc:loc + len(sequence)] for haplo in haplotypes]
         most_I = fewest_or_most_of_char(short_haplotypes, "max", "I")
         entry_similarity = short_haplotypes[most_I]
@@ -106,12 +103,8 @@ def find_where_different(comparison_file, common_sequences, max_identical_ratio=
                 identical_ratio = identical_count/ len(entry_similarity)
             elif identical_count == 0:
                 identical_ratio = 0
-            #print(loc, sequence, entry_similarity, identical_ratio)
-            if identical_ratio <= 0.96:
-                print(loc, sequence, entry_similarity, identical_ratio)
+            if identical_ratio <= max_identical_ratio:
                 filtered_sequences[loc] = sequence
-                #print(loc, sequence, entry_similarity, identical_ratio, uniq_ratio)
-
     return filtered_sequences
 
 ### Output Function
@@ -147,9 +140,6 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
                     output_file.write(f"{length}:{int(locations[end_pos]) - position_in_chr}: {seq} at position {position_in_chr} \n")
 
 ### Running the Script 
-
-# Example 1
-
 
 input_ = map_file("example1/new_4.csv")
 with open("example1/locations.csv", "a") as f:
