@@ -4,8 +4,6 @@ import argparse
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
-#note to self
-
 def map_file(filepath):
     """
     Outputs a dictionary mapping marker names to their respective positions.
@@ -123,8 +121,8 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
     
     """Writes the filtered sequences and their genomic locations to an output file."""
     
-    with open("example3/locations.csv", "a") as location_file, open(output_filename, "w") as output_file:
-        output_file.write("Longest common paternal sequences in the half-sibs\n")
+    with open(output_filename, "a") as location_file:
+        #output_file.write("Longest common paternal sequences in the half-sibs\n")
         for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
             
             position_in_chr = int(locations.get(loc, -1))
@@ -137,21 +135,7 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
                     
                     chr_label = chromosome.lstrip('0')
                     location_file.write(f"{chr_label};{position_in_chr/1000000};{int(locations[end_pos])/1000000}\n")
-                    output_file.write(f"{length}:{int(locations[end_pos]) - position_in_chr}: {seq} at position {position_in_chr} \n")
-
-### Running the Script 
-
-input_ = map_file("example1/new_4.csv")
-with open("example1/locations.csv", "a") as f:
-    f.write("CHR;BP1;BP2\n")
-
-
-for chr in chromosomes:
-    print(f"Processing chromosome {chr}...")
-    all_common_subsequences = find_common_subsequences(f"example1/{chr}_output.csv", fuse_adjacent=True)
-    filtered_common = find_where_different(f"example1/{chr}_comparison.csv", all_common_subsequences, max_identical_ratio=0.7)
-    map_ = specific_chr_map(input_, int(chr))
-    write_common_locations(filtered_common, f"example1/output/top_sequences_{chr}.txt", map_, chr)
+                    #output_file.write(f"{length}:{int(locations[end_pos]) - position_in_chr}: {seq} at position {position_in_chr} \n")
 
 
 if __name__ == '__main__':
@@ -174,21 +158,20 @@ if __name__ == '__main__':
     for chr in chromosomes:
         print(f"Processing chromosome {chr}...")
         all_common_subsequences = find_common_subsequences(args.output, fuse_adjacent=True)
-        filtered_common = find_where_different(f"example1/{chr}_comparison.csv", all_common_subsequences, max_identical_ratio=0.7)
+        filtered_common = find_where_different(args.output, all_common_subsequences, max_identical_ratio=0.7)
         map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(filtered_common, f"example1/output/top_sequences_{chr}.txt", map_, chr)
+        write_common_locations(filtered_common, args.output, map_, chr)
 
 # example 3
 """
 input_ = map_file("example3/new.csv")
 with open("example3/locations.csv", "a") as f:
     f.write("CHR;BP1;BP2\n")
-
-
 for chr in chromosomes:
     print(f"Processing chromosome {chr}...")
     all_common_subsequences = find_common_subsequences(f"example3/{chr}_output.csv", fuse_adjacent=True)
     filtered_common = find_where_different(f"example3/{chr}_comparison.csv", all_common_subsequences, max_identical_ratio=0.7)
     map_ = specific_chr_map(input_, int(chr))
     write_common_locations(filtered_common, f"example3/output/top_sequences_{chr}.txt", map_, chr)
+
 """
