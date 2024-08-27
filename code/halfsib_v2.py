@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import argparse
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29" ]
 
@@ -76,23 +77,20 @@ def save_to_csv(data, outputfile):
     df_output.to_csv(outputfile, header=False)
     print(f"Output written to {outputfile}.")
 
-for chr in chromosomes:
-    print(f"Processing chromosome {chr}...")
-    dictionary, trios = markers_and_trios("example1/data/new_filtered.ped")
-    loc_list = map_file("example1/data/new_filtered.csv")
-    process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_output.csv", mode="haplotype")
-    process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")
 
-#for chr in chromosomes:
-#    print(chr)
-#    dataframe_chr = write_csv(chr, "example1/new_3.ped", "example1/new_4.csv", f"example1/{chr}_output.csv")
-#    dataframe_identical = write_identical(chr, "example1/new_3.ped", "example1/new_4.csv", f"example1/{chr}_comparison.csv")
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description="Find paternal haplotypes from input data",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("--ped", required=True, help="input .ped file")
+    parser.add_argument("--markers", required=True, help=".csv file with gene map")
+    parser.add_argument("--output", required=True, help=".csv file")
+    args = parser.parse_args()
 
-# for example 3
-"""
-for chr in chromosomes:
-    print(f"Processing chromosome {chr}...")
-    dictionary, trios = markers_and_trios("example3/new.ped")
-    loc_list = map_file("example3/new.csv")
-    process_haplotypes(chr, dictionary, trios, loc_list, f"example3/{chr}_output.csv", mode="haplotype")
-    process_haplotypes(chr, dictionary, trios, loc_list, f"example3/{chr}_comparison.csv", mode="identical")"""
+    for chr in chromosomes:
+        print(f"Processing chromosome {chr}...")
+        dictionary, trios = markers_and_trios(args.ped)
+        loc_list = map_file(args.markers)
+        process_haplotypes(chr, dictionary, trios, loc_list, args.output, mode="haplotype")
+        #process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")
