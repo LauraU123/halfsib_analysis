@@ -92,7 +92,6 @@ rule halfsib:
         """
 
 
-
 rule locations:
     message:
         """Find the common locations from the files"""
