@@ -1,7 +1,7 @@
 #this is the snakefile for running all the input examples
 configfile: "configfile.yaml"
 data_dir = 'data/'
-results_dir = "results/"
+results_dir ="results/"
 
 rule all:
     input:
@@ -11,22 +11,24 @@ rule inputs:
     message:
         """This rule generates plink input files from raw data"""
     input:
-        snp_file = "{example}/SNP_Map.txt",
-        sample_file = "{example}/Sample_Map.txt",
-        lgen_file = "{example}/experiment.txt"
+        snp = "{example}/SNP_Map.txt",
+        sample = "{example}/Sample_Map.txt",
+        lgen = "{example}/FinalReport.txt"
     output:
-        a = outputdir + "{example}/plink.bam",
-        b = outputdir + "{example}/plink.bim",
-        c = outputdir + "{example}/plink.fam",
+        snp = outputdir + "{example}/plink.map",
+        lgen = outputdir + "{example}/plink.bim",
+        sample = outputdir + "{example}/plink.fam",
     params:
         output = "results/{example}/plink"
     shell:
         """
         python3 code/SNP_generator.py \
-            --SNP {input.snp_file} \
-            --sample {input.sample_file} \
-            --experiment {input.lgen_file} \
-            --outputs {params.output}
+            --SNP_in {input.snp} \
+            --SNP_out {input.snp} \
+            --experiment_in {input.lgen} \
+            --experiment {output.lgen} \
+            --sample_in {input.sample} \
+            --sample_out {output.sample}
         """
 
 rule filter:
