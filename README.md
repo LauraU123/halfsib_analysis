@@ -1,6 +1,7 @@
 # Paternal Halfsibling  analysis tool
 
 This tool can be used for finding common haplotypes in paternal halfsiblings.
+Chromosome number of the species of interest should be specified in the config file. 
 
 ## Preprocess Data
 
