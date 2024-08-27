@@ -1,4 +1,4 @@
-# Paternal Halfsibling  analysis tool
+# Paternal Halfsibling Linkage Analysis tool
 
 This tool can be used for finding common haplotypes in paternal halfsiblings.
 Chromosome number of the species of interest should be specified in the config file. 
