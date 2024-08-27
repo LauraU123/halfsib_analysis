@@ -22,7 +22,7 @@ rule inputs:
         output = "results/{example}/plink"
     shell:
         """
-        python3 SNP_generator.py \
+        python3 code/SNP_generator.py \
             --SNP {input.snp_file} \
             --sample {input.sample_file} \
             --experiment {input.lgen_file} \
@@ -67,7 +67,7 @@ rule rename_genes:
         output = "results/{example}/filtered.csv"
     shell:
         """
-        python3 SNP_generator.py \
+        python3 code/rename_genes.py \
         --input {input.input_} \
         --output {output.output}
         """
@@ -82,7 +82,7 @@ rule halfsib:
         common_sequences = "results/{example}/{config.chromosomes}_output.csv"
     shell:
         """
-        python3 halfsib_v2.py \
+        python3 code/halfsib_v2.py \
         --input {input.filtered_file} \
         --output {output.common_sequences} 
         """
@@ -96,7 +96,7 @@ rule locations:
         output = "results/{example}/locations.csv"
     shell:
         """
-        python3 locations_v2.py \
+        python3 code/locations_v2.py \
         --input {input.input_} \
         --output {output.output}
         """
@@ -123,7 +123,7 @@ rule reformat_homozygosity:
         output = "results/{example}/homozygosity.csv"
     shell:
         """
-        python3 homozygosity.py \
+        python3 code/homozygosity.py \
         --input {input.input_} \
         --output {output.output}
         """
