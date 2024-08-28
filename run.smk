@@ -1,23 +1,22 @@
 #this is the snakefile for running all the input examples
-configfile: "configfile.yaml"
-data_dir = 'data/'
-results_dir ="results/"
-
+config: "configfile.yaml"
+outputdir: "results/"
 rule all:
     input:
-        expand(results_dir + "{example}/locations.csv", results_dir + "{example}/homozygosity.csv")
+        locations = "results/example1/locations.csv", 
+        homozygosity = "results/example1/homozygosity.csv"
 
 rule inputs:
     message:
         """This rule generates plink input files from raw data"""
     input:
-        snp = "{example}/SNP_Map.txt",
-        sample = "{example}/Sample_Map.txt",
-        lgen = "{example}/FinalReport.txt"
+        snp = "results/{example}/SNP_Map.txt",
+        sample = "results/{example}/Sample_Map.txt",
+        lgen = "results/{example}/FinalReport.txt"
     output:
-        snp = outputdir + "{example}/plink.map",
-        lgen = outputdir + "{example}/plink.bim",
-        sample = outputdir + "{example}/plink.fam",
+        snp = "results/" + "{example}/plink.map",
+        lgen = "results/" + "{example}/plink.bim",
+        sample = "results/" + "{example}/plink.fam",
     params:
         output = "results/{example}/plink"
     shell:
@@ -35,13 +34,13 @@ rule filter:
     message:
         """Filtering the input files with maf and mind"""
     input:
-        rules.inputs.output.a,
-        rules.inputs.output.b,
-        rules.inputs.output.c
+        rules.inputs.output.snp,
+        rules.inputs.output.lgen,
+        rules.inputs.output.sample
     output:
-        a = outputdir + "filtered.bam",
-        b = outputdir + "filtered.bim",
-        c = outputdir + "filtered.fam",
+        bam = "results/{example}/filtered.bam",
+        bim = "results/{example}/filtered.bim",
+        fam = "results/{example}/filtered.fam",
     params:
         name = "results/{example}/plink",
         output = "results/{example}/filtered"
@@ -54,7 +53,7 @@ rule recode:
     input:
         input_ = rules.filter.output
     output:
-        output = outputdir + "recoded.ped",
+        output = "results/{example}/recoded.ped",
     shell:
         """
         plink --recode 12 --bfile {input.input_} --tab --out {output.output} --chr-set 29
@@ -79,7 +78,7 @@ rule halfsib:
     message:
         """Find common halfsibs from input files"""
     input:
-        ped = rules.recode.output.a,
+        ped = rules.recode.output,
         gene_map = rules.rename_genes.output.output
     output:
         common_sequences = "results/{example}/{config.chromosomes}_output.csv"
