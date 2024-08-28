@@ -118,7 +118,7 @@ rule homozygosity:
         input_ = "results/{example}/filtered",
         output = "results/{example}/plink"
     shell:
-        """plink --file {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50"""
+        """plink --file {params.input_} --homozyg {config.founder} --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50"""
 
 rule reformat_homozygosity:
     message:
