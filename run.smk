@@ -6,46 +6,22 @@ rule all:
         locations = "results/example1/locations.csv", 
         homozygosity = "results/example1/homozygosity.csv"
 
-rule inputs:
-    message:
-        """This rule generates plink input files from raw data"""
-    input:
-        snp = "results/{example}/SNP_Map.txt",
-        sample = "results/{example}/Sample_Map.txt",
-        lgen = "results/{example}/FinalReport.txt"
-    output:
-        snp = "results/" + "{example}/plink.map",
-        lgen = "results/" + "{example}/plink.bim",
-        sample = "results/" + "{example}/plink.fam",
-    params:
-        output = "results/{example}/plink"
-    shell:
-        """
-        python3 code/SNP_generator.py \
-            --SNP_in {input.snp} \
-            --SNP_out {input.snp} \
-            --experiment_in {input.lgen} \
-            --experiment {output.lgen} \
-            --sample_in {input.sample} \
-            --sample_out {output.sample}
-        """
-
 rule filter:
     message:
         """Filtering the input files with maf and mind"""
     input:
-        rules.inputs.output.snp,
-        rules.inputs.output.lgen,
-        rules.inputs.output.sample
+        snp = "data/" + "{example}/plink.bed",
+        lgen = "data/" + "{example}/plink.bim",
+        sample = "data/" + "{example}/plink.fam",
     output:
-        bam = "results/{example}/filtered.bam",
+        bam = "results/{example}/filtered.bed",
         bim = "results/{example}/filtered.bim",
         fam = "results/{example}/filtered.fam",
     params:
         name = "results/{example}/plink",
         output = "results/{example}/filtered"
     shell:
-        """plink --maf 0.01 --mind 0.1 --lfile {params.name} --make-bed --chr-set 29 --out {params.output}"""
+        """plink --maf 0.01 --mind 0.1 --file {params.name} --make-bed --chr-set 29 --out {params.output}"""
 
 rule recode:
     message:
@@ -63,7 +39,7 @@ rule rename_genes:
     message:
         """Rename genes to standardised format. filtered map file to csv file"""
     input:
-        input_ = "results/{example}/filtered.map"
+        input_ = "results/{example}/filtered.bed"
     output:
         output = "results/{example}/filtered.csv"
     shell:
@@ -105,12 +81,11 @@ rule locations:
         --output {output.output}
         """
 
-
 rule homozygosity:
     message:
         """Find the homozygosity locations"""
     input:
-        input_ = "results/{example}/filtered"
+        input_ = "results/{example}/filtered.bim"
     output:
         output = "results/{example}/plink.hom"
     params:
