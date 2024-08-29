@@ -147,11 +147,11 @@ rule homozygosity:
     output:
         output = "results/{example}/founder.hom"
     params:
-        input_ = "results/{example}/filtered",
+        input_ = "results/{example}/founder",
         output = "results/{example}/founder"
     shell:
         """
-        plink --bfile {params.input_} --homozyg --keep data/example1/founder.txt --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50
+        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50 --output {params.output}
         """
 
 rule reformat_homozygosity:
