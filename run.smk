@@ -43,6 +43,7 @@ rule mendel:
         plink --mendel --bfile {params.input_}  --chr-set 29 --out {params.output}
         """
         
+
 rule filter_mendel:
     message:
         """Filtering mendelian errors with plink"""
@@ -150,7 +151,7 @@ rule homozygosity:
         output = "results/{example}/founder"
     shell:
         """
-        plink --file {params.input_} --homozyg --keep data/example1/founder.txt --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50
+        plink --bfile {params.input_} --homozyg --keep data/example1/founder.txt --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50
         """
 
 rule reformat_homozygosity:
