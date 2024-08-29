@@ -1,6 +1,7 @@
 #this is the snakefile for running all the input examples
-config: "configfile.yaml"
-outputdir: "results/"
+#config: "configfile.yaml"
+#outputdir: "results/"
+
 rule all:
     input:
         locations = "results/example1/locations.csv", 
@@ -12,16 +13,55 @@ rule filter:
     input:
         snp = "data/" + "{example}/plink.bed",
         lgen = "data/" + "{example}/plink.bim",
-        sample = "data/" + "{example}/plink.fam",
+        sample = "data/" + "{example}/plink.fam"
     output:
         bam = "results/{example}/filtered.bed",
         bim = "results/{example}/filtered.bim",
-        fam = "results/{example}/filtered.fam",
+        fam = "results/{example}/filtered.fam"
     params:
-        name = "results/{example}/plink",
+        name = "data/{example}/plink",
         output = "results/{example}/filtered"
     shell:
-        """plink --maf 0.01 --mind 0.1 --file {params.name} --make-bed --chr-set 29 --out {params.output}"""
+        """
+        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set 29
+        """
+
+rule mendel:
+    message:
+        """Filtering mendelian errors with plink"""
+    input:
+        bam = rules.filtered.output.bam,
+        bim = rules.filtered.output.bim,
+        fam = rules.filtered.output.fam
+    output:
+        mendel = outputdir + "filtered.mendel"
+    params:
+        input_ = "results/{example}/filtered",
+        output = "results/{example}/filtered_mendelian"
+    shell:
+        """
+        plink --mendel --bfile {params.input_}  --chr-set 29 --out {params.output}
+        """
+        
+rule filter_mendel:
+    message:
+        """Filtering mendelian errors with plink"""
+    input:
+        bam = rules.filtered.output.bam,
+        bim = rules.filtered.output.bim,
+        fam = rules.filtered.output.fam
+        mendel = rules.mendel.output
+    output:
+        a = outputdir + "filtered_mendel.bam",
+        b = outputdir + "filtered_mendel.bim",
+        c = outputdir + "filtered_mendel.fam"
+    params:
+        input_ = "results/{example}/filtered",
+        output = "results/{example}/filtered_mendelian"
+    shell:
+        """
+        plink --mendel --bfile {params.input_} --make-bed --chr-set 29 --out {params.output}
+        """
 
 rule recode:
     message:
@@ -29,15 +69,20 @@ rule recode:
     input:
         input_ = rules.filter.output
     output:
-        output = "results/{example}/recoded.ped",
+        output = "results/{example}/recoded.ped"
+    params:
+        input_ = "results/{example}/filtered",
+        output = "results/{example}/recoded"
     shell:
         """
-        plink --recode 12 --bfile {input.input_} --tab --out {output.output} --chr-set 29
+        plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set 29 --tab 
         """
 
 rule rename_genes:
     message:
-        """Rename genes to standardised format. filtered map file to csv file"""
+        """
+        Rename genes to standardised format. filtered map file to csv file
+        """
     input:
         input_ = "results/{example}/filtered.bed"
     output:
@@ -48,7 +93,6 @@ rule rename_genes:
         --input {input.input_} \
         --output {output.output}
         """
-
 
 rule halfsib:
     message:
@@ -66,7 +110,6 @@ rule halfsib:
         --output {output.common_sequences} 
         """
 
-
 rule locations:
     message:
         """Find the common locations from the files"""
@@ -81,18 +124,34 @@ rule locations:
         --output {output.output}
         """
 
+rule founder:
+    input:
+        input_ = "results/{example}/filtered.bim",
+        ids_to_remove = "data/{example}/IDlist.txt"
+    output:
+        output =    "results/{example}/founder.bim"
+    params:
+        in_ = "results/{example}/filtered",
+        out = "results/{example}/founder"
+    shell:
+        """
+        plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set 29
+        """
+        
 rule homozygosity:
     message:
         """Find the homozygosity locations"""
     input:
-        input_ = "results/{example}/filtered.bim"
+        rules.founder.output
     output:
-        output = "results/{example}/plink.hom"
+        output = "results/{example}/founder.hom"
     params:
         input_ = "results/{example}/filtered",
-        output = "results/{example}/plink"
+        output = "results/{example}/founder"
     shell:
-        """plink --file {params.input_} --homozyg {config.founder} --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50"""
+        """
+        plink --file {params.input_} --homozyg --keep data/example1/founder.txt --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50
+        """
 
 rule reformat_homozygosity:
     message:
