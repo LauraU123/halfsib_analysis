@@ -30,11 +30,11 @@ rule mendel:
     message:
         """Filtering mendelian errors with plink"""
     input:
-        bam = rules.filtered.output.bam,
-        bim = rules.filtered.output.bim,
-        fam = rules.filtered.output.fam
+        bam = rules.filter.output.bam,
+        bim = rules.filter.output.bim,
+        fam = rules.filter.output.fam
     output:
-        mendel = outputdir + "filtered.mendel"
+        mendel = "results/{example}/filtered.mendel"
     params:
         input_ = "results/{example}/filtered",
         output = "results/{example}/filtered_mendelian"
@@ -50,12 +50,12 @@ rule filter_mendel:
     input:
         bam = rules.filtered.output.bam,
         bim = rules.filtered.output.bim,
-        fam = rules.filtered.output.fam
+        fam = rules.filtered.output.fam,
         mendel = rules.mendel.output
     output:
-        a = outputdir + "filtered_mendel.bam",
-        b = outputdir + "filtered_mendel.bim",
-        c = outputdir + "filtered_mendel.fam"
+        a = "results/{example}/filtered_mendel.bam",
+        b = "results/{example}/filtered_mendel.bim",
+        c =  "results/{example}/filtered_mendel.fam"
     params:
         input_ = "results/{example}/filtered",
         output = "results/{example}/filtered_mendelian"
