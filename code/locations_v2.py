@@ -124,7 +124,6 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
     with open(output_filename, "a") as location_file:
         #output_file.write("Longest common paternal sequences in the half-sibs\n")
         for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
-            
             position_in_chr = int(locations.get(loc, -1))
             end_pos = loc + len(seq) - 1
             if end_pos in locations:
@@ -137,7 +136,6 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
                     location_file.write(f"{chr_label};{position_in_chr/1000000};{int(locations[end_pos])/1000000}\n")
                     #output_file.write(f"{length}:{int(locations[end_pos]) - position_in_chr}: {seq} at position {position_in_chr} \n")
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Find paternal haplotypes from input data",
@@ -146,7 +144,8 @@ if __name__ == '__main__':
     parser.add_argument("--map", required=True, help="input .ped file")
     parser.add_argument("--locations", required=True, help="input .ped file")
     parser.add_argument("--markers", required=True, help=".csv file with gene map")
-    parser.add_argument("--output", required=True, help=".csv file")
+    parser.add_argument("--top", required=True, help=".csv file")
+    parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
     args = parser.parse_args()
 
 
@@ -157,10 +156,10 @@ if __name__ == '__main__':
 
     for chr in chromosomes:
         print(f"Processing chromosome {chr}...")
-        all_common_subsequences = find_common_subsequences(args.output, fuse_adjacent=True)
+        all_common_subsequences = find_common_subsequences(args.markers, fuse_adjacent=True)
         filtered_common = find_where_different(args.output, all_common_subsequences, max_identical_ratio=0.7)
         map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(filtered_common, args.output, map_, chr)
+        write_common_locations(filtered_common, args.top, map_, chr, args.length)
 
 # example 3
 """
