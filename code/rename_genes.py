@@ -6,8 +6,9 @@ import argparse
 This script renames each gene to a standard name in the format chr_position. 
 """
 
-def rename_genes(input, output):
-    df = pd.read_csv(input, sep="\t", header=None)
+def rename_genes(input_, output):
+    print(input_)
+    df = pd.read_csv(input_, sep="\t", header=None)
     df.columns = ["chr", "name", "0", "pos"]
     df["new_column"] = np.nan
     list_ = []
@@ -27,6 +28,7 @@ def rename_genes(input, output):
         elif len(str(position)) == 9: name = name + f"{position}"
         list_.append(name)
     df["new_column"] = list_
+    print("done!")
     df.to_csv(output, header=None)
 
 if __name__ == '__main__':
@@ -37,3 +39,4 @@ if __name__ == '__main__':
     parser.add_argument("--input_", required=True, help=".map file")
     parser.add_argument("--output", required=True, help=".csv file")
     args = parser.parse_args()
+    rename_genes(args.input_, args.output)
