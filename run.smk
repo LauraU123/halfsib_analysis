@@ -120,13 +120,13 @@ rule locations:
     output:
         locations = "results/{example}/locations.csv"
     params:
-        length = config.get("min_length")
+        min_length = 900000
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.input_} \
         --locations {output.locations} \
-        --min_len {params.length} \
+        --min_len {params.min_length} \
         --output {output.output}
         """
 
