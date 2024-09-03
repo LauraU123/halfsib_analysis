@@ -179,7 +179,7 @@ rule plot:
     input:
         homozygosity = rules.reformat_homozygosity.output,
         chr_map_cattle = "data/chr_map.csv",
-        common areas = ""
+        common = rules.locations.output.output
     
     output:
         plot = "results/{example}/plot.png"
@@ -187,6 +187,7 @@ rule plot:
         """
         python3 code/plot.py \
         --homozygosity {input.homozygosity} \
-        --chr_map {}        
-        
+        --chr_map {input.chr_map_cattle} \
+        --common {input.common} \
+        --output {output.plot}        
         """
