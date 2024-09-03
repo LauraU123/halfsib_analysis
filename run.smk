@@ -68,7 +68,7 @@ rule recode:
     message:
         """Recode bim, bam and fam to ped"""
     input:
-        input_ = rules.mendel.output.a
+        input_ = rules.filter_mendel.output.a
     output:
         output = "results/{example}/recoded.ped"
     params:
@@ -116,9 +116,10 @@ rule locations:
         """Find the common locations from the files"""
     input:
         input_ = rules.halfsib.output.common_sequences,
-        map_ = "results/{example}/filtered_mendelian.ped"
+        map_ = "results/{example}/recoded.ped"
     output:
-        locations = "results/{example}/locations.csv"
+        locations = "results/{example}/locations.csv",
+        output = 
     params:
         min_length = 900000
     shell:
@@ -179,8 +180,7 @@ rule plot:
     input:
         homozygosity = rules.reformat_homozygosity.output,
         chr_map_cattle = "data/chr_map.csv",
-        common = rules.locations.output.output
-    
+        common = rules.locations.output.locations
     output:
         plot = "results/{example}/plot.png"
     shell:
