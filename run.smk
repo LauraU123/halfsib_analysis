@@ -68,11 +68,11 @@ rule recode:
     message:
         """Recode bim, bam and fam to ped"""
     input:
-        input_ = rules.filter.output
+        input_ = rules.mendel.output.a
     output:
         output = "results/{example}/recoded.ped"
     params:
-        input_ = "results/{example}/filtered",
+        input_ = "results/{example}/filtered_mendelian",
         output = "results/{example}/recoded"
     shell:
         """
@@ -85,7 +85,7 @@ rule rename_genes:
         Rename genes to standardised format. filtered map file to csv file
         """
     input:
-        input_ = "results/{example}/filtered.bim"
+        input_ = "results/{example}/filtered_mendelian.bim"
     output:
         output = "results/{example}/filtered.csv"
     shell:
@@ -115,13 +115,18 @@ rule locations:
     message:
         """Find the common locations from the files"""
     input:
-        input_ = rules.halfsib.output.common_sequences
+        input_ = rules.halfsib.output.common_sequences,
+        map_ = "results/{example}/filtered_mendelian.ped"
     output:
-        output = "results/{example}/locations.csv"
+        locations = "results/{example}/locations.csv"
+    params:
+        length = config.get("min_length")
     shell:
         """
         python3 code/locations_v2.py \
-        --input {input.input_} \
+        --map {input.input_} \
+        --locations {output.locations} \
+        --min_len {params.length} \
         --output {output.output}
         """
 
@@ -136,7 +141,7 @@ rule founder:
         out = "results/{example}/founder"
     shell:
         """
-        plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set 29
+        plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set 29 
         """
         
 rule homozygosity:
@@ -166,4 +171,22 @@ rule reformat_homozygosity:
         python3 code/homozygosity.py \
         --input {input.input_} \
         --output {output.output}
+        """
+
+rule plot:
+    message:
+        """constructing chromosome map plot with homozygosity and common sequences"""
+    input:
+        homozygosity = rules.reformat_homozygosity.output,
+        chr_map_cattle = "data/chr_map.csv",
+        common areas = ""
+    
+    output:
+        plot = "results/{example}/plot.png"
+    shell:
+        """
+        python3 code/plot.py \
+        --homozygosity {input.homozygosity} \
+        --chr_map {}        
+        
         """
