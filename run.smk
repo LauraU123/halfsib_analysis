@@ -48,9 +48,9 @@ rule filter_mendel:
     message:
         """Filtering mendelian errors with plink"""
     input:
-        bam = rules.filtered.output.bam,
-        bim = rules.filtered.output.bim,
-        fam = rules.filtered.output.fam,
+        bam = rules.filter.output.bam,
+        bim = rules.filter.output.bim,
+        fam = rules.filter.output.fam,
         mendel = rules.mendel.output
     output:
         a = "results/{example}/filtered_mendel.bam",
@@ -85,7 +85,7 @@ rule rename_genes:
         Rename genes to standardised format. filtered map file to csv file
         """
     input:
-        input_ = "results/{example}/filtered.bed"
+        input_ = "results/{example}/filtered.bim"
     output:
         output = "results/{example}/filtered.csv"
     shell:
@@ -127,12 +127,12 @@ rule locations:
 
 rule founder:
     input:
-        input_ = "results/{example}/filtered.bim",
+        input_ = "results/{example}/recoded.map",
         ids_to_remove = "data/{example}/IDlist.txt"
     output:
         output =    "results/{example}/founder.bim"
     params:
-        in_ = "results/{example}/filtered",
+        in_ = "results/{example}/recoded",
         out = "results/{example}/founder"
     shell:
         """
@@ -151,7 +151,7 @@ rule homozygosity:
         output = "results/{example}/founder"
     shell:
         """
-        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50 --output {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50 --out {params.output}
         """
 
 rule reformat_homozygosity:
