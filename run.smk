@@ -34,43 +34,23 @@ rule mendel:
         bim = rules.filter.output.bim,
         fam = rules.filter.output.fam
     output:
-        mendel = "results/{example}/filtered.mendel"
+        mendel = "results/{example}/filtered_mendelian.bim"
     params:
         input_ = "results/{example}/filtered",
         output = "results/{example}/filtered_mendelian"
     shell:
         """
-        plink --mendel --bfile {params.input_}  --chr-set 29 --out {params.output}
+        plink --me 0.05 0.1 --bfile {params.input_}  --chr-set 29 --out {params.output} --make-bed
         """
-        
-
-rule filter_mendel:
-    message:
-        """Filtering mendelian errors with plink"""
-    input:
-        bam = rules.filter.output.bam,
-        bim = rules.filter.output.bim,
-        fam = rules.filter.output.fam,
-        mendel = rules.mendel.output
-    output:
-        a = "results/{example}/filtered_mendel.bam",
-        b = "results/{example}/filtered_mendel.bim",
-        c =  "results/{example}/filtered_mendel.fam"
-    params:
-        input_ = "results/{example}/filtered",
-        output = "results/{example}/filtered_mendelian"
-    shell:
-        """
-        plink --mendel --bfile {params.input_} --make-bed --chr-set 29 --out {params.output}
-        """
+    
 
 rule recode:
     message:
         """Recode bim, bam and fam to ped"""
     input:
-        input_ = rules.filter_mendel.output.a
+        input_ = rules.mendel.output.mendel
     output:
-        output = "results/{example}/recoded.ped"
+        output = "results/{example}/recoded.map"
     params:
         input_ = "results/{example}/filtered_mendelian",
         output = "results/{example}/recoded"
@@ -78,7 +58,6 @@ rule recode:
         """
         plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set 29 --tab 
         """
-
 
 rule rename_genes:
     message:
