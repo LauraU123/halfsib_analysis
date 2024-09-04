@@ -79,6 +79,7 @@ rule recode:
         plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set 29 --tab 
         """
 
+
 rule rename_genes:
     message:
         """
@@ -116,19 +117,22 @@ rule locations:
         """Find the common locations from the files"""
     input:
         input_ = rules.halfsib.output.common_sequences,
-        map_ = "results/{example}/recoded.ped"
+        map_ = rules.rename_genes.output
     output:
         locations = "results/{example}/locations.csv",
-        output = 
+        output = "results/{example}/chromosomes.csv",
+        comparison = "results/{example}/compare.csv"
     params:
         min_length = 900000
     shell:
         """
         python3 code/locations_v2.py \
-        --map {input.input_} \
+        --map {input.map_} \
+        --markers {input.input_} \
         --locations {output.locations} \
-        --min_len {params.min_length} \
-        --output {output.output}
+        --length {params.min_length} \
+        --top {output.output} \
+        --comparison {output.comparison}
         """
 
 rule founder:

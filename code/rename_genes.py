@@ -9,7 +9,8 @@ This script renames each gene to a standard name in the format chr_position.
 def rename_genes(input_, output):
     print(input_)
     df = pd.read_csv(input_, sep="\t", header=None)
-    df.columns = ["chr", "name", "0", "pos"]
+    print(df)
+    df.columns = ["chr", "name", "0", "pos", "col1", "col2"]
     df["new_column"] = np.nan
     list_ = []
 

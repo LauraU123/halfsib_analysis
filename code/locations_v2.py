@@ -12,7 +12,7 @@ def map_file(filepath):
     with open(filepath) as location:
         for loc in location:
             split_loc = loc.split(",")
-            key = split_loc[5].strip()
+            key = split_loc[-1].strip()
             entry = split_loc[4]
             loc_dict[key] = entry
     return loc_dict
@@ -130,7 +130,7 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
                 length = int(locations[end_pos]) - position_in_chr
                 loc_len = int(locations[end_pos]) - int(locations[loc])
                 n_fraction = seq.count("N") / len(seq)
-                if n_fraction < 0.3 and loc_len>= min_len:
+                if n_fraction < 0.3 and loc_len>= int(min_len):
                     
                     chr_label = chromosome.lstrip('0')
                     location_file.write(f"{chr_label};{position_in_chr/1000000};{int(locations[end_pos])/1000000}\n")
@@ -145,21 +145,22 @@ if __name__ == '__main__':
     parser.add_argument("--locations", required=True, help="input .ped file")
     parser.add_argument("--markers", required=True, help=".csv file with gene map")
     parser.add_argument("--top", required=True, help=".csv file")
+    parser.add_argument("--comparison", required=True, help=".csv file")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
     args = parser.parse_args()
 
 
     input_ = map_file(args.map)
+    print(input_)
     with open(args.locations, "a") as f:
         f.write("CHR;BP1;BP2\n")
-
 
     for chr in chromosomes:
         print(f"Processing chromosome {chr}...")
         all_common_subsequences = find_common_subsequences(args.markers, fuse_adjacent=True)
-        filtered_common = find_where_different(args.output, all_common_subsequences, max_identical_ratio=0.7)
+        #filtered_common = find_where_different(args.comparison, all_common_subsequences, max_identical_ratio=0.7)
         map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(filtered_common, args.top, map_, chr, args.length)
+        write_common_locations(all_common_subsequences, args.top, map_, chr, args.length)
 
 # example 3
 """
