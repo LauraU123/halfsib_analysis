@@ -102,18 +102,15 @@ rule locations:
     output:
         locations = "results/{example}/locations.csv",
         output = "results/{example}/chromosomes.csv",
-        comparison = "results/{example}/compare.csv"
     params:
         min_length = 900000
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
-        --markers {input.input_} \
         --locations {output.locations} \
         --length {params.min_length} \
-        --top {output.output} \
-        --comparison {output.comparison}
+        --top {output.output} 
         """
 
 rule founder:
