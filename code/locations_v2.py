@@ -120,7 +120,7 @@ def write_output_top_seq(filtered_sequences, output_filename):
 def write_common_locations(filtered_sequences, output_filename, locations, chromosome, min_len = 1277230):
     
     """Writes the filtered sequences and their genomic locations to an output file."""
-    
+    print(filtered_sequences)
     with open(output_filename, "a") as location_file:
         #output_file.write("Longest common paternal sequences in the half-sibs\n")
         for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     )
     parser.add_argument("--map", required=True, help="input .ped file")
     parser.add_argument("--locations", required=True, help="input .ped file")
-    parser.add_argument("--top", required=True, help=".csv file")
+    parser.add_argument("--top", required=False, help=".csv file")
     parser.add_argument("--comparison", required=False, help=".csv file")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
     args = parser.parse_args()
@@ -157,7 +157,7 @@ if __name__ == '__main__':
         all_common_subsequences = find_common_subsequences(f"results/example1/{chr}_output.csv", fuse_adjacent=True)
         #filtered_common = find_where_different(args.comparison, all_common_subsequences, max_identical_ratio=0.7)
         map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(all_common_subsequences, args.top, map_, chr, args.length)
+        write_common_locations(all_common_subsequences, args.locations, map_, chr, args.length)
 
 # example 3
 """

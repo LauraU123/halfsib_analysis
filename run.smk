@@ -53,7 +53,8 @@ rule recode:
     input:
         input_ = rules.mendel.output.mendel
     output:
-        output = "results/{example}/recoded.ped"
+        output = "results/{example}/recoded.ped",
+        map_ = "results/{example}/recoded.map"
     params:
         input_ = "results/{example}/filtered_mendelian",
         output = "results/{example}/recoded"
@@ -75,14 +76,14 @@ rule rename_genes:
         """
         python3 code/rename_genes.py \
         --input {input.input_} \
-        --output {output.output}
+        --output {output.filtered_csv}
         """
 
 rule halfsib:
     message:
         """Find common halfsibs from input files"""
     input:
-        ped = rules.recode.output,
+        ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
         common_sequences = expand("results/{{example}}/{chr}_output.csv", chr=chromosomes)
@@ -90,7 +91,7 @@ rule halfsib:
         """
         python3 code/halfsib_v2.py \
         --ped {input.ped} \
-        --markers {input.gene_map} \
+        --markers {input.gene_map} 
         """
 
 rule locations:
@@ -100,8 +101,7 @@ rule locations:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        locations = "results/{example}/locations.csv",
-        output = "results/{example}/chromosomes.csv",
+        locations = "results/{example}/locations.csv"
     params:
         min_length = 900000
     shell:
@@ -109,8 +109,7 @@ rule locations:
         python3 code/locations_v2.py \
         --map {input.map_} \
         --locations {output.locations} \
-        --length {params.min_length} \
-        --top {output.output} 
+        --length {params.min_length} 
         """
 
 rule founder:
@@ -118,7 +117,7 @@ rule founder:
         input_ = "results/{example}/recoded.map",
         ids_to_remove = "data/{example}/IDlist.txt"
     output:
-        output =    "results/{example}/founder.bim"
+        output = "results/{example}/founder.bim"
     params:
         in_ = "results/{example}/recoded",
         out = "results/{example}/founder"
