@@ -24,7 +24,6 @@ def markers_and_trios(filepath):
             dictionary[parts[1]] = [recode.get(marker.strip(), None) for marker in parts[6:]] 
     return dictionary, trios
 
-
 def process_haplotypes(chromosome, dictionary, trios, loc_list, outputfile, mode="haplotype"):
     """Processes either haplotypes or identical loci based on the mode."""
     haplo = {}
@@ -74,6 +73,7 @@ def determine_identical(offspring, father, mother):
 def save_to_csv(data, outputfile):
     """Saves the data dictionary to a CSV file."""
     df_output = pd.DataFrame.from_dict(data, orient='index')
+    print(df_output)
     df_output.to_csv(outputfile, header=False)
     print(f"Output written to {outputfile}.")
 
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     parser.add_argument("--output", required=False, help=".csv file")
     args = parser.parse_args()
 
-    for chr in chromosomes:
-        print(f"Processing chromosome {chr}...")
+    for chr_ in chromosomes:
+        print(f"Processing chromosome {chr_}...")
         dictionary, trios = markers_and_trios(args.ped)
         loc_list = map_file(args.markers)
-        process_haplotypes(chr, dictionary, trios, loc_list, f"results/example1/{chr}_comparison.csv", mode="haplotype")
+        process_haplotypes(chr_, dictionary, trios, loc_list, f"results/example1/{chr_}_comparison.csv", mode="haplotype")
         #process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")

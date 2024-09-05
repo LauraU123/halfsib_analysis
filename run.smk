@@ -53,7 +53,7 @@ rule recode:
     input:
         input_ = rules.mendel.output.mendel
     output:
-        output = "results/{example}/recoded.map"
+        output = "results/{example}/recoded.ped"
     params:
         input_ = "results/{example}/filtered_mendelian",
         output = "results/{example}/recoded"
@@ -70,7 +70,7 @@ rule rename_genes:
     input:
         input_ = "results/{example}/filtered_mendelian.bim"
     output:
-        output = "results/{example}/filtered.csv"
+        filtered_csv = "results/{example}/filtered.csv"
     shell:
         """
         python3 code/rename_genes.py \
@@ -83,7 +83,7 @@ rule halfsib:
         """Find common halfsibs from input files"""
     input:
         ped = rules.recode.output,
-        gene_map = rules.rename_genes.output.output
+        gene_map = rules.rename_genes.output.filtered_csv
     output:
         common_sequences = expand("results/{{example}}/{chr}_output.csv", chr=chromosomes)
     shell:
