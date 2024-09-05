@@ -2,6 +2,9 @@
 #config: "configfile.yaml"
 #outputdir: "results/"
 
+chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
+
+
 rule all:
     input:
         locations = "results/example1/locations.csv", 
@@ -82,13 +85,12 @@ rule halfsib:
         ped = rules.recode.output,
         gene_map = rules.rename_genes.output.output
     output:
-        common_sequences = "results/{example}/{config.chromosomes}_output.csv"
+        common_sequences = expand("results/{{example}}/{chr}_output.csv", chr=chromosomes)
     shell:
         """
         python3 code/halfsib_v2.py \
         --ped {input.ped} \
         --markers {input.gene_map} \
-        --output {output.common_sequences} 
         """
 
 rule locations:
