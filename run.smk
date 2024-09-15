@@ -4,11 +4,12 @@
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
-
 rule all:
     input:
         locations = "results/example1/locations.csv", 
-        homozygosity = "results/example1/homozygosity.csv"
+        homozygosity = "results/example1/homozygosity.csv",
+        plot = "results/example1/plot.pdf"
+
 
 rule filter:
     message:
@@ -28,6 +29,7 @@ rule filter:
         """
         plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set 29
         """
+
 
 rule mendel:
     message:
@@ -103,7 +105,7 @@ rule locations:
     output:
         locations = "results/{example}/locations.csv"
     params:
-        min_length = 900000
+        min_length = 1000000
     shell:
         """
         python3 code/locations_v2.py \
@@ -138,7 +140,7 @@ rule homozygosity:
         output = "results/{example}/founder"
     shell:
         """
-        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 100 --homozyg-snp 50 --homozyg-window-missing 3 --homozyg-window-snp 50 --out {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
         """
 
 rule reformat_homozygosity:
@@ -155,20 +157,34 @@ rule reformat_homozygosity:
         --output {output.output}
         """
 
+rule only_variants:
+    message:
+        """Finding variants which are not homozygous in the paternal genome"""
+    input:
+        homozygous = rules.reformat_homozygosity.output,
+        variants = rules.locations.output.locations
+    output:
+        only_variants = "results/{example}/only_homozygous.csv"
+    shell:
+        """
+        python3 code/only_variants.py \
+        --homozygosity {input.homozygous} \
+        --variants {input.variants} \
+        --output_csv {output.only_variants}
+        """
+
 rule plot:
     message:
         """constructing chromosome map plot with homozygosity and common sequences"""
     input:
-        homozygosity = rules.reformat_homozygosity.output,
+        only_variants = rules.only_variants.output,
         chr_map_cattle = "data/chr_map.csv",
-        common = rules.locations.output.locations
     output:
-        plot = "results/{example}/plot.png"
+        plot = "results/{example}/plot.pdf"
     shell:
         """
         python3 code/plot.py \
-        --homozygosity {input.homozygosity} \
-        --chr_map {input.chr_map_cattle} \
-        --common {input.common} \
-        --output {output.plot}        
+        --chr {input.chr_map_cattle} \
+        --locations {input.only_variants} \
+        --plot {output.plot}
         """
