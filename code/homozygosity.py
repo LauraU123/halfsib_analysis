@@ -12,7 +12,7 @@ def find_homozygosity(inputfile, outputfile):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="Rewrite glycosylation file",
+        description="Write homozygosity file in correct format",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--input_", required=True, help=".hom file")
