@@ -2,22 +2,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
+from matplotlib.ticker import FuncFormatter
 
 
-def plotting(chr_file, locations, homozygosity, output):
+
+
+def plotting(chr_file, locations, output):
 
     # Read data from CSV files
     chromosomes = pd.read_csv(chr_file, sep=";")
     data = pd.read_csv(locations, sep=";")
-    homozygosity = pd.read_csv(homozygosity, sep=";")
 
     scale = 1000000
 
     pdf_width = 11.69
     pdf_height = 8.27
+    line_width = 5
     plt.figure(figsize=(pdf_width, pdf_height))
 
-    line_width = 10
     fig, ax = plt.subplots()
     ax.bar(chromosomes['Chr'], chromosomes['length'] / scale, width=0.4, color='grey', label='Chromosomes')
 
@@ -32,21 +34,18 @@ def plotting(chr_file, locations, homozygosity, output):
             for _, row in subset.iterrows():
                 start_position = row['BP1'] / scale
                 end_position = row['BP2'] / scale
-                ax.plot([run, run], [start_position, end_position], lw=line_width, color='blue')
+                ax.plot([run, run], [start_position, end_position], lw=line_width, color='red')
         else:
             print(f"No variant on chromosome {run}")
 
-    # Print homozygosity regions in red
-    for run in range(1, 30):
-        subset_h = homozygosity[homozygosity['CHR'] == run]
-        if len(subset_h) > 0:
-            for _, row in subset_h.iterrows():
-                start_position_h = row['BP1'] / scale
-                end_position_h = row['BP2'] / scale
-                ax.plot([run, run], [start_position_h, end_position_h], lw=line_width, color='red', alpha=0.5)
-        else:
-            print(f"No homozygosity on chromosome {run}")
-
+    def scale_format(x, pos):
+        return f"{int(x*scale):,}"
+    ax.plot([], [], lw=line_width, color='red', label='Variants')
+    y_ticks = ax.get_yticks()
+    for y in y_ticks:
+            ax.axhline(y=y, color='black', linestyle='--', linewidth=0.5)
+    #ax.yaxis.set_major_formatter(FuncFormatter(scale_format))
+    ax.legend(loc='lower right')
     ax.set_ylabel("Length in Mb")
     ax.set_xlabel("Chromosomes")
     ax.set_xticks(chromosomes['Chr'])
@@ -63,8 +62,7 @@ if __name__ == '__main__':
     )
     parser.add_argument("--chr", required=True, help=".csv file")
     parser.add_argument("--locations", required=True, help=".csv file")
-    parser.add_argument("--homozygosity", required=True, help=".csv file")
     parser.add_argument("--plot", required=True, help=".csv file")
     args = parser.parse_args()
 
-    plotting(args.chr, args.locations, args.homozygosity, args.plot)
+    plotting(args.chr, args.locations, args.plot)
