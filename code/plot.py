@@ -21,7 +21,7 @@ def plotting(chr_file, locations, output):
     plt.figure(figsize=(pdf_width, pdf_height))
 
     fig, ax = plt.subplots()
-    ax.bar(chromosomes['Chr'], chromosomes['length'] / scale, width=0.4, color='grey', label='Chromosomes')
+    ax.bar(chromosomes['Chr'], chromosomes['length'] / scale, width=0.4, color='grey')
 
     # Inverted y-axis
     ax.invert_yaxis()
@@ -44,12 +44,13 @@ def plotting(chr_file, locations, output):
     y_ticks = ax.get_yticks()
     for y in y_ticks:
             ax.axhline(y=y, color='black', linestyle='--', linewidth=0.5)
-    #ax.yaxis.set_major_formatter(FuncFormatter(scale_format))
+    ax.yaxis.set_major_formatter(FuncFormatter(scale_format))
     ax.legend(loc='lower right')
     ax.set_ylabel("Length in Mb")
     ax.set_xlabel("Chromosomes")
     ax.set_xticks(chromosomes['Chr'])
     ax.set_xticklabels(chromosomes['Chr'])
+    ax.tick_params(axis='x', labelsize=8)
     ax.grid(False)
 
     plt.savefig(output, format="pdf")
