@@ -2,10 +2,11 @@
 import pandas as pd
 import argparse
 
+
 def find_homozygosity(inputfile, outputfile):
     df = pd.read_csv(inputfile, delim_whitespace=True)
     with open(outputfile, "w") as f:
-        f.write("CHR;BP1;BP2")
+        f.write("CHR;BP1;BP2\n")
         for chr, start, end in zip(df["CHR"], df["POS1"], df["POS2"]):
             f.write(f"{chr};{start/1000000};{end/1000000}\n") 
 
