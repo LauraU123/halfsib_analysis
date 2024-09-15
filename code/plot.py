@@ -41,16 +41,26 @@ def plotting(chr_file, locations, output):
     def scale_format(x, pos):
         return f"{int(x*scale):,}"
     ax.plot([], [], lw=line_width, color='red', label='Variants')
+
+    # y axis ticks and scaling 
     y_ticks = ax.get_yticks()
-    for y in y_ticks:
+    extra_lines = []
+    for i in range(len(y_ticks)-1):
+        extra_lines.append(y_ticks[i] + y_ticks[i+1]/2)
+    all_lines = np.sort(np.concatenate((y_ticks, extra_lines)))
+    for y in all_lines:
             ax.axhline(y=y, color='black', linestyle='--', linewidth=0.5)
     ax.yaxis.set_major_formatter(FuncFormatter(scale_format))
+
     ax.legend(loc='lower right')
     ax.set_ylabel("Length in Mb")
     ax.set_xlabel("Chromosomes")
     ax.set_xticks(chromosomes['Chr'])
     ax.set_xticklabels(chromosomes['Chr'])
     ax.tick_params(axis='x', labelsize=8)
+    max_length_mb = chromosomes['length'].max()/scale
+    ax.set_ylim(0,max_length_mb)
+    ax.invert_yaxis()
     ax.grid(False)
 
     plt.savefig(output, format="pdf")
