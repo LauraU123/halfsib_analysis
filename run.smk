@@ -1,5 +1,5 @@
 #this is the snakefile for running all the input examples
-#config: "configfile.yaml"
+configfile: "configfile.yaml"
 #outputdir: "results/"
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
@@ -8,7 +8,8 @@ rule all:
     input:
         locations = "results/example1/locations.csv", 
         homozygosity = "results/example1/homozygosity.csv",
-        plot = "results/example1/plot.pdf"
+        plot = "results/example1/plot.pdf",
+        founder = "results/example1/founder.hom"
 
 
 rule filter:
@@ -105,7 +106,7 @@ rule locations:
     output:
         locations = "results/{example}/locations.csv"
     params:
-        min_length = 1000000
+        min_length = 1200000
     shell:
         """
         python3 code/locations_v2.py \
@@ -119,7 +120,7 @@ rule founder:
         input_ = "results/{example}/recoded.map",
         ids_to_remove = "data/{example}/IDlist.txt"
     output:
-        output = "results/{example}/founder.bim"
+        output = "results/{example}/founder.bed"
     params:
         in_ = "results/{example}/recoded",
         out = "results/{example}/founder"
@@ -132,7 +133,7 @@ rule homozygosity:
     message:
         """Find the homozygosity locations"""
     input:
-        rules.founder.output
+        input = rules.founder.output.output
     output:
         output = "results/{example}/founder.hom"
     params:
@@ -140,7 +141,7 @@ rule homozygosity:
         output = "results/{example}/founder"
     shell:
         """
-        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 1000 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 50 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
         """
 
 rule reformat_homozygosity:
