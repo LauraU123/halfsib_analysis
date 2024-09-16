@@ -1,24 +1,25 @@
 #this is the snakefile for running all the input examples
 configfile: "configfile.yaml"
-#outputdir: "results/"
+outputdir = "results/"
+inputdir = "data/"
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
 rule all:
     input:
-        locations = "results/example1/locations.csv", 
-        homozygosity = "results/example1/homozygosity.csv",
-        plot = "results/example1/plot.pdf",
-        founder = "results/example1/founder.hom"
+        locations = outputdir + "example1/locations.csv", 
+        homozygosity = outputdir +  "example1/homozygosity.csv",
+        plot = outputdir + "example1/plot.pdf",
+        founder = outputdir +  "example1/founder.hom"
 
 
 rule filter:
     message:
         """Filtering the input files with maf and mind"""
     input:
-        snp = "data/" + "{example}/plink.bed",
-        lgen = "data/" + "{example}/plink.bim",
-        sample = "data/" + "{example}/plink.fam"
+        snp = inputdir + "{example}/plink.bed",
+        lgen = inputdir + "{example}/plink.bim",
+        sample = inputdir + "{example}/plink.fam"
     output:
         bam = "results/{example}/filtered.bed",
         bim = "results/{example}/filtered.bim",
