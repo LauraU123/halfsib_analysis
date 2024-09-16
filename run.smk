@@ -12,7 +12,6 @@ rule all:
         plot = outputdir + "example1/plot.pdf",
         founder = outputdir +  "example1/founder.hom"
 
-
 rule filter:
     message:
         """Filtering the input files with maf and mind"""
@@ -21,12 +20,12 @@ rule filter:
         lgen = inputdir + "{example}/plink.bim",
         sample = inputdir + "{example}/plink.fam"
     output:
-        bam = "results/{example}/filtered.bed",
-        bim = "results/{example}/filtered.bim",
-        fam = "results/{example}/filtered.fam"
+        bam = outputdir + "{example}/filtered.bed",
+        bim = outputdir + "{example}/filtered.bim",
+        fam = outputdir + "{example}/filtered.fam"
     params:
-        name = "data/{example}/plink",
-        output = "results/{example}/filtered"
+        name = inputdir + "{example}/plink",
+        output = outputdir + "{example}/filtered"
     shell:
         """
         plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set 29
@@ -41,10 +40,10 @@ rule mendel:
         bim = rules.filter.output.bim,
         fam = rules.filter.output.fam
     output:
-        mendel = "results/{example}/filtered_mendelian.bim"
+        mendel = outputdir + "{example}/filtered_mendelian.bim"
     params:
-        input_ = "results/{example}/filtered",
-        output = "results/{example}/filtered_mendelian"
+        input_ = outputdir + "{example}/filtered",
+        output = outputdir + "{example}/filtered_mendelian"
     shell:
         """
         plink --me 0.05 0.1 --bfile {params.input_}  --chr-set 29 --out {params.output} --make-bed
@@ -57,11 +56,11 @@ rule recode:
     input:
         input_ = rules.mendel.output.mendel
     output:
-        output = "results/{example}/recoded.ped",
-        map_ = "results/{example}/recoded.map"
+        output = outputdir + "{example}/recoded.ped",
+        map_ = outputdir +  "{example}/recoded.map"
     params:
-        input_ = "results/{example}/filtered_mendelian",
-        output = "results/{example}/recoded"
+        input_ = outputdir +  "{example}/filtered_mendelian",
+        output = outputdir + "{example}/recoded"
     shell:
         """
         plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set 29 --tab 
@@ -73,9 +72,9 @@ rule rename_genes:
         Rename genes to standardised format. filtered map file to csv file
         """
     input:
-        input_ = "results/{example}/filtered_mendelian.bim"
+        input_ = outputdir +  "{example}/filtered_mendelian.bim"
     output:
-        filtered_csv = "results/{example}/filtered.csv"
+        filtered_csv = outputdir + "{example}/filtered.csv"
     shell:
         """
         python3 code/rename_genes.py \
@@ -90,7 +89,7 @@ rule halfsib:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        common_sequences = expand("results/{{example}}/{chr}_output.csv", chr=chromosomes)
+        common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=chromosomes)
     shell:
         """
         python3 code/halfsib_v2.py \
@@ -105,7 +104,7 @@ rule locations:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        locations = "results/{example}/locations.csv"
+        locations = outputdir +  "{example}/locations.csv"
     params:
         min_length = 1200000
     shell:
@@ -118,13 +117,13 @@ rule locations:
 
 rule founder:
     input:
-        input_ = "results/{example}/recoded.map",
-        ids_to_remove = "data/{example}/IDlist.txt"
+        input_ = outputdir +  "{example}/recoded.map",
+        ids_to_remove = inputdir + "{example}/IDlist.txt"
     output:
-        output = "results/{example}/founder.bed"
+        output = outputdir + "{example}/founder.bed"
     params:
-        in_ = "results/{example}/recoded",
-        out = "results/{example}/founder"
+        in_ = outputdir +  "{example}/recoded",
+        out = outputdir +  "{example}/founder"
     shell:
         """
         plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set 29 
@@ -136,10 +135,10 @@ rule homozygosity:
     input:
         input = rules.founder.output.output
     output:
-        output = "results/{example}/founder.hom"
+        output = outputdir +  "{example}/founder.hom"
     params:
-        input_ = "results/{example}/founder",
-        output = "results/{example}/founder"
+        input_ = outputdir +  "{example}/founder",
+        output = outputdir +  "{example}/founder"
     shell:
         """
         plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 50 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
@@ -151,7 +150,7 @@ rule reformat_homozygosity:
     input:
         input_ = rules.homozygosity.output
     output:
-        output = "results/{example}/homozygosity.csv"
+        output = outputdir +  "{example}/homozygosity.csv"
     shell:
         """
         python3 code/homozygosity.py \
@@ -166,7 +165,7 @@ rule only_variants:
         homozygous = rules.reformat_homozygosity.output,
         variants = rules.locations.output.locations
     output:
-        only_variants = "results/{example}/only_homozygous.csv"
+        only_variants = outputdir +  "{example}/only_homozygous.csv"
     shell:
         """
         python3 code/only_variants.py \
@@ -180,9 +179,9 @@ rule plot:
         """constructing chromosome map plot with homozygosity and common sequences"""
     input:
         only_variants = rules.only_variants.output,
-        chr_map_cattle = "data/chr_map.csv",
+        chr_map_cattle = inputdir + "chr_map.csv",
     output:
-        plot = "results/{example}/plot.pdf"
+        plot = outputdir + "{example}/plot.pdf"
     shell:
         """
         python3 code/plot.py \
