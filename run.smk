@@ -1,4 +1,4 @@
-#this is the snakefile for running all the input examples
+
 configfile: "configfile.yaml"
 outputdir = "results/"
 inputdir = "data/"
@@ -26,10 +26,11 @@ rule filter:
         fam = outputdir + "{example}/filtered.fam"
     params:
         name = inputdir + "{example}/plink",
-        output = outputdir + "{example}/filtered"
+        output = outputdir + "{example}/filtered",
+        chrs = config["chrs"]
     shell:
         """
-        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set 29
+        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
 
 
@@ -44,10 +45,11 @@ rule mendel:
         mendel = outputdir + "{example}/filtered_mendelian.bim"
     params:
         input_ = outputdir + "{example}/filtered",
-        output = outputdir + "{example}/filtered_mendelian"
+        output = outputdir + "{example}/filtered_mendelian",
+        chrs = config["chrs"]
     shell:
         """
-        plink --me 0.05 0.1 --bfile {params.input_}  --chr-set 29 --out {params.output} --make-bed
+        plink --me 0.05 0.1 --bfile {params.input_}  --chr-set {params.chrs} --out {params.output} --make-bed
         """
     
 
@@ -61,10 +63,11 @@ rule recode:
         map_ = outputdir +  "{example}/recoded.map"
     params:
         input_ = outputdir +  "{example}/filtered_mendelian",
-        output = outputdir + "{example}/recoded"
+        output = outputdir + "{example}/recoded",
+        chrs = config["chrs"]
     shell:
         """
-        plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set 29 --tab 
+        plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set {params.chrs} --tab 
         """
 
 rule rename_genes:
@@ -92,13 +95,15 @@ rule halfsib:
     output:
         common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=chromosomes)
     params:
-        folder = outputdir + "{example}/"
+        folder = outputdir + "{example}/",
+        chromosomes = config["chrs"]
     shell:
         """
         python3 code/halfsib_v2.py \
         --ped {input.ped} \
         --folder {params.folder} \
-        --markers {input.gene_map} 
+        --markers {input.gene_map} \
+        --chr {params.chromosomes}
         """
 
 rule locations:
@@ -111,14 +116,16 @@ rule locations:
         locations = outputdir +  "{example}/locations.csv"
     params:
         min_length = 1200000,
-        folder = outputdir + "{example}/"
+        folder = outputdir + "{example}/",
+        chromosomes = config["chrs"]
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
         --locations {output.locations} \
         --folder {params.folder} \
-        --length {params.min_length} 
+        --length {params.min_length} \
+        --chr {params.chromosomes}
         """
 
 rule founder:
@@ -129,10 +136,11 @@ rule founder:
         output = outputdir + "{example}/founder.bed"
     params:
         in_ = outputdir +  "{example}/recoded",
-        out = outputdir +  "{example}/founder"
+        out = outputdir +  "{example}/founder",
+        chrs = config["chrs"]
     shell:
         """
-        plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set 29 
+        plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set {params.chrs} 
         """
         
 rule homozygosity:
@@ -144,10 +152,11 @@ rule homozygosity:
         output = outputdir +  "{example}/founder.hom"
     params:
         input_ = outputdir +  "{example}/founder",
-        output = outputdir +  "{example}/founder"
+        output = outputdir +  "{example}/founder",
+        chrs = config["chrs"]
     shell:
         """
-        plink --bfile {params.input_} --homozyg --chr-set 29 --homozyg-density 50 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density 50 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
         """
 
 rule reformat_homozygosity:

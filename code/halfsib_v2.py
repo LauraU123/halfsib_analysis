@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import argparse
 
-chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29" ]
+#chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29" ]
 
 def map_file(filepath):
     """Output:list of  marker names from tab-delimited file."""
@@ -87,8 +87,12 @@ if __name__ == '__main__':
     parser.add_argument("--markers", required=True, help=".csv file with gene map")
     parser.add_argument("--folder", required=True, help="output folder")
     parser.add_argument("--output", required=False, help=".csv file")
+    parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
 
+    chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
+    chromosomes = [str(item).zfill(2) for item in chromosomes_]
+    
     for chr_ in chromosomes:
         print(f"Processing chromosome {chr_}...")
         dictionary, trios = markers_and_trios(args.ped)

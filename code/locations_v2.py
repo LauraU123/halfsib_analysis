@@ -2,7 +2,7 @@
 import pandas as pd
 import argparse
 
-chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
+#chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
 def map_file(filepath):
     """
@@ -118,16 +118,17 @@ if __name__ == '__main__':
     )
     parser.add_argument("--map", required=True, help="input .ped file")
     parser.add_argument("--locations", required=True, help="input .ped file")
-    parser.add_argument("--top", required=False, help=".csv file")
-    parser.add_argument("--comparison", required=False, help=".csv file")
     parser.add_argument("--folder", required=True, help="output file folder")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
+    parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
 
     input_ = map_file(args.map)
     with open(args.locations, "a") as f:
         f.write("CHR;BP1;BP2\n")
 
+    chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
+    chromosomes = [str(item).zfill(2) for item in chromosomes_]
     for chr in chromosomes:
         print(f"Processing chromosome {chr}...")
         all_common_subsequences = find_common_subsequences(args.folder + f"{chr}_output.csv", fuse_adjacent=True)
