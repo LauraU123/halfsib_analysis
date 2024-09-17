@@ -111,7 +111,7 @@ rule locations:
         locations = outputdir +  "{example}/locations.csv"
     params:
         min_length = 1200000,
-        folder = outputdir + "{example}"
+        folder = outputdir + "{example}/"
     shell:
         """
         python3 code/locations_v2.py \
