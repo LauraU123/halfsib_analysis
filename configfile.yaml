@@ -1,4 +1,16 @@
 example: "example3"
 data_dir: "data/"
 results_dir: "results/"
-founder: "RM774"
+chrs: 29
+
+
+variants:
+  min_var_length: 1200000
+
+
+homozygosity_params:
+  density: 50
+  kb: 1000
+  snp: 20
+  window_missing: 5
+  window_snp: 50

@@ -4,7 +4,6 @@ outputdir = "results/"
 inputdir = "data/"
 EXAMPLES = ["example3"]
 
-chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
 rule all:
     input:
@@ -106,16 +105,16 @@ rule halfsib:
         --chr {params.chromosomes}
         """
 
-rule locations:
+rule variants:
     message:
         """Find the common locations from the files"""
     input:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        locations = outputdir +  "{example}/locations.csv"
+        variants = outputdir +  "{example}/locations.csv"
     params:
-        min_length = 1200000,
+        min_length = config['variants']['min_var_length'],
         folder = outputdir + "{example}/",
         chromosomes = config["chrs"]
     shell:
@@ -153,15 +152,20 @@ rule homozygosity:
     params:
         input_ = outputdir +  "{example}/founder",
         output = outputdir +  "{example}/founder",
-        chrs = config["chrs"]
+        chrs = config["chrs"],
+        density = config["homozygosity_params"]["density"],
+        kb = config["homozygosity_params"]["kb"],
+        snp = config["homozygosity_params"]["snp"],
+        window_missing = config["homozygosity_params"]["window_missing"],
+        window_snp = config["homozygosity_params"]["window_snp"]
     shell:
         """
-        plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density 50 --homozyg-kb 1000 --homozyg-snp 20 --homozyg-window-missing 5 --homozyg-window-snp 50 --out {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density {params.density} --homozyg-kb {params.kb} --homozyg-snp {params.snp} --homozyg-window-missing {params.window_missing} --homozyg-window-snp {params.window_snp} --out {params.output}
         """
 
 rule reformat_homozygosity:
     message:
-        """Reformat homozygous areas to a csv file for annotation"""
+        """Reformatting homozygous areas to a csv file for annotation"""
     input:
         input_ = rules.homozygosity.output
     output:
@@ -178,7 +182,7 @@ rule only_variants:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
         homozygous = rules.reformat_homozygosity.output,
-        variants = rules.locations.output.locations
+        variants = rules.variants.output.variants
     output:
         only_variants = outputdir +  "{example}/only_homozygous.csv"
     shell:

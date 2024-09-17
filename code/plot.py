@@ -5,8 +5,6 @@ import argparse
 from matplotlib.ticker import FuncFormatter
 
 
-
-
 def plotting(chr_file, locations, output):
 
     chromosomes = pd.read_csv(chr_file, sep=";")
@@ -20,7 +18,6 @@ def plotting(chr_file, locations, output):
     fig, ax = plt.subplots()
     ax.bar(chromosomes['Chr'], chromosomes['length'] / scale, width=0.4, color='grey')
 
-    # Inverted y-axis
     ax.invert_yaxis()
     ax.xaxis.tick_top()
 
