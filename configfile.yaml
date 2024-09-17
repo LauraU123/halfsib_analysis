@@ -1,4 +1,4 @@
-examples: ["example1", "example3"]
+example: "example3"
 data_dir: "data/"
 results_dir: "results/"
 founder: "RM774"

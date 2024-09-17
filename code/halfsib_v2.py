@@ -85,6 +85,7 @@ if __name__ == '__main__':
     )
     parser.add_argument("--ped", required=True, help="input .ped file")
     parser.add_argument("--markers", required=True, help=".csv file with gene map")
+    parser.add_argument("--folder", required=True, help="output folder")
     parser.add_argument("--output", required=False, help=".csv file")
     args = parser.parse_args()
 
@@ -92,5 +93,5 @@ if __name__ == '__main__':
         print(f"Processing chromosome {chr_}...")
         dictionary, trios = markers_and_trios(args.ped)
         loc_list = map_file(args.markers)
-        process_haplotypes(chr_, dictionary, trios, loc_list, f"results/example1/{chr_}_output.csv", mode="haplotype")
+        process_haplotypes(chr_, dictionary, trios, loc_list, args.folder + f"{chr_}_output.csv", mode="haplotype")
         #process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")

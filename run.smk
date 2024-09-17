@@ -2,15 +2,16 @@
 configfile: "configfile.yaml"
 outputdir = "results/"
 inputdir = "data/"
+EXAMPLES = ["example3"]
 
 chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
 
 rule all:
     input:
-        locations = outputdir + "example1/locations.csv", 
-        homozygosity = outputdir +  "example1/homozygosity.csv",
-        plot = outputdir + "example1/plot.pdf",
-        founder = outputdir +  "example1/founder.hom"
+        expand(outputdir + "{eg}/locations.csv",  eg=EXAMPLES), 
+        expand(outputdir + "{eg}/homozygosity.csv", eg=EXAMPLES),
+        expand(outputdir  + "{eg}/plot.pdf", eg=EXAMPLES),
+        expand(outputdir  + "{eg}/founder.hom", eg=EXAMPLES)
 
 rule filter:
     message:
@@ -90,10 +91,13 @@ rule halfsib:
         gene_map = rules.rename_genes.output.filtered_csv
     output:
         common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=chromosomes)
+    params:
+        folder = outputdir + "{example}/"
     shell:
         """
         python3 code/halfsib_v2.py \
         --ped {input.ped} \
+        --folder {params.folder} \
         --markers {input.gene_map} 
         """
 
@@ -106,12 +110,14 @@ rule locations:
     output:
         locations = outputdir +  "{example}/locations.csv"
     params:
-        min_length = 1200000
+        min_length = 1200000,
+        folder = outputdir + "{example}"
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
         --locations {output.locations} \
+        --folder {params.folder} \
         --length {params.min_length} 
         """
 
