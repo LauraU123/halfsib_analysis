@@ -3,6 +3,8 @@
 This tool can be used for finding common haplotypes in paternal halfsiblings.
 Chromosome number of the species of interest should be specified in the config file. 
 
+Required to run : matplotlib, PLINK, Snakemake 
+
 ## Preprocess Data
 
 ### Recode to Plink Format
@@ -40,10 +42,11 @@ To narrow down the areas of interest, homozygous loci are determined in this ste
 
 ### Reformatting the output for graphing
 
+The homozygous loci output is reformatted to a ; separated csv file for the next step. 
 
 ## Graphing
 
-Visualising the data using R
+In the final step, the data is visualised as chromosomes using matplotlib. 
 
 
 
