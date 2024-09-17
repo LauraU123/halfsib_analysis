@@ -2,8 +2,6 @@
 import pandas as pd
 import argparse
 
-#chromosomes = ["01","02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
-
 def map_file(filepath):
     """
     Outputs a dictionary mapping marker names to their respective positions.
@@ -43,7 +41,7 @@ def character_match(char1, char2):
     ignored_mismatches = {"N": {"A", "B"}, "A": {"N"}, "B": {"N"}}
     return char1 == char2 or (char1 in ignored_mismatches and char2 in ignored_mismatches[char1])
 
-def find_common_subsequences(input_file, min_common_length=5, fuse_adjacent=True):
+def find_common_subsequences(input_file, min_common_length=5, fuse_nr = 1, fuse_adjacent=True):
     """
     Identifies common subsequences across all haplotypes in the input file.
     Optionally fuses adjacent subsequences separated by one or two positions.
@@ -57,7 +55,7 @@ def find_common_subsequences(input_file, min_common_length=5, fuse_adjacent=True
 
     while start < chr_length:
         max_subseq = ""
-        end = start + min_common_length
+        end = start + int(min_common_length)
 
         while end <= chr_length:
             subsequence = haplotypes[haplotype_least_N][start:end]
@@ -69,7 +67,7 @@ def find_common_subsequences(input_file, min_common_length=5, fuse_adjacent=True
                 break
 
         if max_subseq:
-            if fuse_adjacent and prev_start is not None and (start - prev_end) in [1]:
+            if fuse_adjacent and prev_start is not None and (start - prev_end) in [fuse_nr]:
                 if prev_start in common_subsequences:
                     prev_seq = common_subsequences.pop(prev_start)
                     fused_seq = prev_seq + 'N' * (start - prev_end) + max_subseq
@@ -82,23 +80,14 @@ def find_common_subsequences(input_file, min_common_length=5, fuse_adjacent=True
             start += 1
     return common_subsequences
 
+
 ### Output Function
 
-def write_output_top_seq(filtered_sequences, output_filename):
-    """
-    Writes the filtered sequences to an output file, sorted by sequence length.
-    """
-    with open(output_filename, 'w') as f:
-        f.write("Longest common paternal sequences in the half-sibs\n")
-        for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
-            f.write(f"{seq} at position {loc}\n")
-
-
-def write_common_locations(filtered_sequences, output_filename, locations, chromosome, min_len = 1000000):
+def write_common_locations(filtered_sequences, output_filename, locations, chromosome, n_fraction_max= 0.3, min_len = 1000000):
     
     """Writes the filtered sequences and their genomic locations to an output file."""
+
     with open(output_filename, "a") as location_file:
-        #output_file.write("Longest common paternal sequences in the half-sibs\n")
         for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
             position_in_chr = int(locations.get(loc, -1))
             end_pos = loc + len(seq) - 1
@@ -106,8 +95,7 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
                 length = int(locations[end_pos]) - position_in_chr
                 loc_len = int(locations[end_pos]) - int(locations[loc])
                 n_fraction = seq.count("N") / len(seq)
-                if n_fraction < 0.3 and loc_len>= int(min_len):
-                    
+                if n_fraction < float(n_fraction_max) and loc_len>= int(min_len):
                     chr_label = chromosome.lstrip('0')
                     location_file.write(f"{chr_label};{position_in_chr/1000000};{int(locations[end_pos])/1000000}\n")
 
@@ -119,7 +107,11 @@ if __name__ == '__main__':
     parser.add_argument("--map", required=True, help="input .ped file")
     parser.add_argument("--locations", required=True, help="input .ped file")
     parser.add_argument("--folder", required=True, help="output file folder")
+    parser.add_argument("--min_markers", required=True, help="minimum length of markers to be included in the analysis")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
+    parser.add_argument("--fuse_adjacent", required=True, help="Should neighbouring variants with marker missing in between be fused")
+    parser.add_argument("--fuse_adjacent_nr", required=False, help="if neighbouring variants with marker missing are accepted, how many gaps are accepted. Default 1")
+    parser.add_argument("--n_fraction_max", required=True, help="maximum undetermined char fraction in the variants. e.g in NNB it is 2/3, so it is not included.")
     parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
 
@@ -131,20 +123,6 @@ if __name__ == '__main__':
     chromosomes = [str(item).zfill(2) for item in chromosomes_]
     for chr in chromosomes:
         print(f"Processing chromosome {chr}...")
-        all_common_subsequences = find_common_subsequences(args.folder + f"{chr}_output.csv", fuse_adjacent=True)
+        all_common_subsequences = find_common_subsequences(args.folder + f"/{chr}_output.csv", args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
         map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(all_common_subsequences, args.locations, map_, chr, args.length)
-
-# example 3
-"""
-input_ = map_file("example3/new.csv")
-with open("example3/locations.csv", "a") as f:
-    f.write("CHR;BP1;BP2\n")
-for chr in chromosomes:
-    print(f"Processing chromosome {chr}...")
-    all_common_subsequences = find_common_subsequences(f"example3/{chr}_output.csv", fuse_adjacent=True)
-    filtered_common = find_where_different(f"example3/{chr}_comparison.csv", all_common_subsequences, max_identical_ratio=0.7)
-    map_ = specific_chr_map(input_, int(chr))
-    write_common_locations(filtered_common, f"example3/output/top_sequences_{chr}.txt", map_, chr)
-
-"""
+        write_common_locations(all_common_subsequences, args.locations, map_, chr, args.n_fraction_max, args.length)

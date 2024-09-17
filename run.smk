@@ -2,15 +2,19 @@
 configfile: "configfile.yaml"
 outputdir = "results/"
 inputdir = "data/"
-EXAMPLES = ["example3"]
+
+def expand_chromosomes(number_of_chrs):
+    chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
+    chromosomes = [str(item).zfill(2) for item in chromosomes_]
+    return(chromosomes)
 
 
 rule all:
     input:
-        expand(outputdir + "{eg}/locations.csv",  eg=EXAMPLES), 
-        expand(outputdir + "{eg}/homozygosity.csv", eg=EXAMPLES),
-        expand(outputdir  + "{eg}/plot.pdf", eg=EXAMPLES),
-        expand(outputdir  + "{eg}/founder.hom", eg=EXAMPLES)
+        expand(outputdir + "{eg}/locations.csv",  eg=config["example"]), 
+        expand(outputdir + "{eg}/homozygosity.csv", eg=config["example"]),
+        expand(outputdir  + "{eg}/plot.pdf", eg=config["example"]),
+        expand(outputdir  + "{eg}/founder.hom", eg=config["example"])
 
 rule filter:
     message:
@@ -92,7 +96,7 @@ rule halfsib:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=chromosomes)
+        common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=expand_chromosomes(config["chrs"]))
     params:
         folder = outputdir + "{example}/",
         chromosomes = config["chrs"]
@@ -116,14 +120,22 @@ rule variants:
     params:
         min_length = config['variants']['min_var_length'],
         folder = outputdir + "{example}/",
-        chromosomes = config["chrs"]
+        chromosomes = config["chrs"],
+        n_fraction_max = config["variants"]["n_fraction_max"],
+        fuse_adjacent = config["variants"]["fuse_adjacent"],
+        fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
+        min_markers = config["variants"]["min_markers"]
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
-        --locations {output.locations} \
+        --locations {output.variants} \
         --folder {params.folder} \
+        --min_markers {params.min_markers} \
         --length {params.min_length} \
+        --n_fraction_max {params.n_fraction_max} \
+        --fuse_adjacent {params.fuse_adjacent} \
+        --fuse_adjacent_nr {params.fuse_adjacent_nr} \
         --chr {params.chromosomes}
         """
 
