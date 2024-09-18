@@ -25,7 +25,7 @@ To find the paternal haplotypes, a .ped format file is required.
 
 Genes are renamed to a standard format. 
 
-## Finding Common Mutations in Halfsibs
+## Finding Common Variants in Halfsibs
 
 ### Find paternal halfsib haplotypes
 
