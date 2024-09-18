@@ -209,14 +209,16 @@ rule plot:
     message:
         """constructing chromosome map plot with homozygosity and common sequences"""
     input:
-        only_variants = rules.only_variants.output,
+        variants = rules.variants.output.variants,
         chr_map_cattle = inputdir + "chr_map.csv",
+        homozyg = rules.reformat_homozygosity.output,
     output:
         plot = outputdir + "{example}/plot.pdf"
     shell:
         """
         python3 code/plot.py \
         --chr {input.chr_map_cattle} \
-        --locations {input.only_variants} \
+        --variants {input.variants} \
+        --homozyg {input.homozyg} \
         --plot {output.plot}
         """

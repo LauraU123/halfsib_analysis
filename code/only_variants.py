@@ -3,7 +3,6 @@ import argparse
 import numpy as np
 
 
-
 def variant_only(var_file, homozygosity_file, output_file):
     """This script returns regions which are variants but not homozygous. """
     variants = pd.read_csv(var_file, sep=";")
@@ -25,9 +24,12 @@ def variant_only(var_file, homozygosity_file, output_file):
                     non_overlapping.append((chr1, start1, start2))  # Before overlap
                 if end1 > end2:
                     non_overlapping.append((chr1, end2, end1))  # After overlap
+        for i in non_overlapping:
+            print(i[0], i[1], i[2])
 
     non_overlapping = pd.DataFrame(non_overlapping, columns=['CHR', 'BP1', 'BP2'])
     non_overlapping.to_csv(output_file, sep=';', index=False)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

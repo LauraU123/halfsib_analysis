@@ -5,10 +5,11 @@ import argparse
 from matplotlib.ticker import FuncFormatter
 
 
-def plotting(chr_file, locations, output):
+def plotting(chr_file, locations, homozyg, output):
 
     chromosomes = pd.read_csv(chr_file, sep=";")
     data = pd.read_csv(locations, sep=";")
+    homozygosity = pd.read_csv(homozyg, sep=";")
     scale = 1000000
     pdf_width = 11.69
     pdf_height = 8.27
@@ -28,19 +29,31 @@ def plotting(chr_file, locations, output):
             for _, row in subset.iterrows():
                 start_position = row['BP1'] / scale
                 end_position = row['BP2'] / scale
-                ax.plot([run, run], [start_position, end_position], lw=line_width, color='red')
+                ax.plot([run, run], [start_position, end_position], lw=line_width, color='blue')
+
         else:
             print(f"No variant on chromosome {run}")
+    
+    for run in range(1, 30):
+        subset = homozygosity[homozygosity['CHR'] == run]
+        if len(subset) > 0:
+            for _, row in subset.iterrows():
+                start_position = row['BP1'] / scale
+                end_position = row['BP2'] / scale
+                ax.plot([run, run], [start_position, end_position], lw=line_width, color='red', alpha=0.5)
+
+        else:
+            print(f"No homozygosity on chromosome {run}")
 
     def scale_format(x, pos):
         return f"{int(x*scale):,}"
-    ax.plot([], [], lw=line_width, color='red', label='Variants')
-
+    ax.plot([], [], lw=line_width, color='blue', label='Variants')
+    ax.plot([], [], lw=line_width, color='red', label='Homozygosity')
     # y axis ticks and scaling 
+
     y_ticks = ax.get_yticks()
     extra_lines = []
     for i in range(len(y_ticks)-1):
-        print(y_ticks[i+1]/2)
         #adding 
         extra_lines.append(y_ticks[i] + y_ticks[i+1]/2)
         extra_lines.append(y_ticks[i] - y_ticks[i+1]/2)
@@ -69,9 +82,10 @@ if __name__ == '__main__':
         description="Plot output with chromosomes",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--chr", required=True, help=".csv file")
-    parser.add_argument("--locations", required=True, help=".csv file")
-    parser.add_argument("--plot", required=True, help=".csv file")
+    parser.add_argument("--chr", required=True, help="number of chromosomes")
+    parser.add_argument("--variants", required=True, help=".csv file")
+    parser.add_argument("--homozyg", required=True, help=".csv file with ")
+    parser.add_argument("--plot", required=True, help="output plot in pdf format")
     args = parser.parse_args()
 
-    plotting(args.chr, args.locations, args.plot)
+    plotting(args.chr, args.variants, args.homozyg, args.plot)
