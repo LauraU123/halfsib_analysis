@@ -2,19 +2,20 @@
 
 This tool can be used for finding common haplotypes in paternal halfsiblings.
 Chromosome number of the species of interest should be specified in the config file. 
+Other parameters such as variant length and homozygosity parameters can also be specified in the config file.  
 
 Required to run : matplotlib, PLINK, Snakemake 
 
+Required input:
+ * plink bim, bam, bed files
+ * id list .txt file including all but the paternal sequence ids (IDlist.txt - should be added to the data folder.)
+
 ## Preprocess Data
 
-### Recode to Plink Format
-
-The raw data should first be converted to a plink-friendly format.
-This is done in the first step. 
 
 ### QC 
 
-Filtering the plink-format data using --maf and --geno
+Filtering the plink-format data using --maf and --geno, followed by checking for mendelian errors --me 
 
 ### Recode Genes to .ped format
 

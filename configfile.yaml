@@ -1,7 +1,10 @@
 # General Parameters 
-example: ["example3", "example1"]
-data_dir: "data/"
+# output folders
 results_dir: "results/"
+example: ["example3", "example1"]
+# input data folder
+data_dir: "data/"
+
 
 # Chromosome number
 chrs: 29
@@ -14,7 +17,7 @@ variants:
   n_fraction_max: 0.3
   min_var_length: 1200000
 
-#homozygosity parameters
+#homozygosity parameters for plink
 homozygosity_params:
   density: 50
   kb: 1000
