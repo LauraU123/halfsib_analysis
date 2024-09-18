@@ -45,10 +45,9 @@ To narrow down the areas of interest, homozygous loci are determined in this ste
 
 The homozygous loci output is reformatted to a ; separated csv file for the next step. 
 
-## Graphing
+## Graph
 
 In the final step, the data is visualised as chromosomes using matplotlib. 
-
 
 
 
