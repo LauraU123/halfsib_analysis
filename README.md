@@ -35,26 +35,22 @@ Paternal haplotypes of the half-sibs are determined here using maternal, paterna
 
 ## Annotating Homozygous Loci
 
-To narrow down the areas of interest, homozygous loci are determined in this step. 
+To narrow down the areas of interest, homozygous loci are determined. 
 
 ### Finding Homozygous Loci using Plink
 
+Homozygous loci are determined using plink.
 
 
-### Reformatting the output for graphing
 
-The homozygous loci output is reformatted to a ; separated csv file for the next step. 
+## Visualising
 
-## Graph
+### Reformatting the outputs for graphing
+
+The homozygous loci output is reformatted to a ; separated csv file.
+The same is done for the variant file. 
+
+### Graph
 
 In the final step, the data is visualised as chromosomes using matplotlib. 
-
-
-
-
-### Step 3: Finding the Paternal Haplotypes and Annotating Homozygous Loci
-
-Input: file with haplotype data for parents and offspring 
-
-The first step includes finding the common paternal haplotypes based on
 
