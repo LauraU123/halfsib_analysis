@@ -47,10 +47,11 @@ def plotting(chr_file, locations, homozyg, output):
 
     def scale_format(x, pos):
         return f"{int(x*scale):,}"
-    ax.plot([], [], lw=line_width, color='blue', label='Variants')
+    ax.plot([], [], lw=line_width, color='blue', label='Linked Haplotypes')
     ax.plot([], [], lw=line_width, color='red', label='Homozygosity')
+    ax.plot([], [], lw=line_width, color='purple', label='Overlap')
     # y axis ticks and scaling 
-
+    # add fusing part to neighbouring homozygous regions so they do not overlap in plot
     y_ticks = ax.get_yticks()
     extra_lines = []
     for i in range(len(y_ticks)-1):
