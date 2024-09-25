@@ -1,0 +1,22 @@
+# Parameters for medium density data
+# output folders
+results_dir: "results/"
+example: ["example3"]
+# input data folder
+data_dir: "data/"
+
+
+variants:
+  min_markers: 5
+  fuse_adjacent: True
+  fuse_adjacent_nr: 1
+  n_fraction_max: 0.3
+  min_var_length: 900000
+
+homozygous_params:
+  density: 50
+  kb: 300
+  snp: 37
+  window_missing: 0
+  window_snp: 50
+  window_het : 4
