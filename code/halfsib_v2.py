@@ -4,7 +4,7 @@ import argparse
 
 
 def map_file(filepath):
-    """Output:list of  marker names from tab-delimited file."""
+    """Outputs list of marker names from tab-delim. file."""
     with open(filepath) as f:
         return [line.split(",")[-1].strip() for line in f]
 
@@ -24,7 +24,7 @@ def markers_and_trios(filepath):
     return dictionary, trios
 
 def process_haplotypes(chromosome, dictionary, trios, loc_list, outputfile, mode="haplotype"):
-    """Processes either haplotypes or identical loci based on the mode."""
+    """Processes haplotypes"""
     haplo = {}
     print(f"Processing {mode} for chromosome {chromosome}...")
 
