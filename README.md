@@ -1,13 +1,15 @@
-# Paternal Halfsibling Linkage Analysis tool
+# Halfsib Linkage
+
+This tool can be used to find common haplotype regions in a dataset of half-siblings and their parents.  
+It requires PLINK and Snakemake to run. 
+
+## Inputs
+
+The input should be in plink-friendly format - .bim, .bed and .fam.
+
 
 ![dag.png](https://github.com/LauraU123/halfsib_analysis/blob/parallelized_rules/config/dag.png)
 
-
-This tool can be used for finding common haplotypes in paternal halfsiblings.
-Chromosome number of the species of interest should be specified in the config file. 
-Other parameters such as variant length and homozygosity parameters can also be specified in the config file.  
-
-Required to run : matplotlib, PLINK, Snakemake 
 
 Required input:
  * plink bim, bam, bed files
