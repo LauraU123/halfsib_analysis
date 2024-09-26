@@ -1,5 +1,8 @@
 # Paternal Halfsibling Linkage Analysis tool
 
+![dag.png](https://github.com/LauraU123/halfsib_analysis/blob/parallelized_rules/config/dag.png)
+
+
 This tool can be used for finding common haplotypes in paternal halfsiblings.
 Chromosome number of the species of interest should be specified in the config file. 
 Other parameters such as variant length and homozygosity parameters can also be specified in the config file.  
