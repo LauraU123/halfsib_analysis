@@ -19,7 +19,7 @@ rule all:
 
 rule filter:
     message:
-        """Filtering the input files with maf and mind"""
+        """Filtering the input files with maf and mind, checking for mendelian errors with me"""
     input:
         snp = inputdir + "{example}/plink.bed",
         lgen = inputdir + "{example}/plink.bim",
@@ -35,40 +35,20 @@ rule filter:
     shell:
         """
         module load PLINK 
-        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --maf 0.01 --mind 0.1 --me 0.05 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
         
-
-
-rule mendel:
-    message:
-        """Filtering mendelian errors with plink"""
-    input:
-        bam = rules.filter.output.bam,
-        bim = rules.filter.output.bim,
-        fam = rules.filter.output.fam
-    output:
-        mendel = outputdir + "{example}/filtered_mendelian.bim"
-    params:
-        input_ = outputdir + "{example}/filtered",
-        output = outputdir + "{example}/filtered_mendelian",
-        chrs = config["chrs"]
-    shell:
-        """
-        module load PLINK 
-        plink --me 0.05 0.1 --bfile {params.input_}  --chr-set {params.chrs} --out {params.output} --make-bed
-        """
     
 rule recode:
     message:
         """Recode bim, bam and fam to ped"""
     input:
-        input_ = rules.mendel.output.mendel
+        input_ = rules.filter.output.bim
     output:
         output = outputdir + "{example}/recoded.ped",
         map_ = outputdir +  "{example}/recoded.map"
     params:
-        input_ = outputdir +  "{example}/filtered_mendelian",
+        input_ = outputdir +  "{example}/filtered",
         output = outputdir + "{example}/recoded",
         chrs = config["chrs"]
     shell:
@@ -81,10 +61,10 @@ rule recode:
 rule rename_genes:
     message:
         """
-        Rename genes to standardised format. filtered map file to csv file
+        Renaming genes to standardised format.  map  -> csv 
         """
     input:
-        input_ = outputdir +  "{example}/filtered_mendelian.bim"
+        input_ = outputdir +  "{example}/filtered.bim"
     output:
         filtered_csv = outputdir + "{example}/filtered.csv"
     shell:
@@ -97,20 +77,20 @@ rule rename_genes:
 
 rule halfsib:
     message:
-        """Find common halfsibs from input files"""
+        """Finding paternal haplotypes in halfsibs"""
     input:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        common_sequences = outputdir + "{example}/{chr}_output.csv"
+        paternal_haplotypes = outputdir + "{example}/{chr}_output.csv"
     params:
         folder = outputdir + "{example}/",
-        chromosomes = config["chrs"]
+        chromosomes = lambda wc: wc.get('chr')
     shell:
         """
         python3 code/halfsib_v2.py \
         --ped {input.ped} \
-        --folder {params.folder} \
+        --output {output.paternal_haplotypes} \
         --markers {input.gene_map} \
         --chr {params.chromosomes}
         """
@@ -120,7 +100,7 @@ rule linked:
     message:
         """Finding linked locations..."""
     input:
-        input_ = rules.halfsib.output.common_sequences,
+        input_ = rules.halfsib.output.paternal_haplotypes,
         map_ = rules.rename_genes.output
     output:
         linked = outputdir +  "{example}/locations_{chr}.csv"
