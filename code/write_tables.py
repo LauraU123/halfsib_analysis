@@ -40,7 +40,6 @@ def variant_only(var_file, homozygosity_file, output_file):
     for _, row1 in variants.iterrows():
         chr1, start1, end1 = row1['CHR'], row1['BP1'], row1['BP2']
         out = []
-        # Find any overlapping rows in df2
         overlaps = homozygosity[(homozygosity['CHR'] == chr1) & (homozygosity['BP1'] < end1) & (homozygosity['BP2'] > start1)]
 
         if overlaps.empty:
@@ -56,10 +55,8 @@ def variant_only(var_file, homozygosity_file, output_file):
             for i in non_overlapping:
                 f.write(f"chromosome : {int(i[0])} location : {i[1]} - {i[2]} length : {i[2]-i[1]}\n")
 
-
     #non_overlapping = pd.DataFrame(non_overlapping, columns=['CHR', 'BP1', 'BP2'])
     #non_overlapping.to_csv(output_file, sep=';', index=False)
-
 
 
 if __name__ == '__main__':

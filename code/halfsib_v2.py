@@ -87,7 +87,6 @@ if __name__ == '__main__':
     parser.add_argument("--output", required=False, help=".csv file")
     parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
-    print(args.chr)
     #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
     #chromosomes = [str(item).zfill(2) for item in chromosomes_]
     

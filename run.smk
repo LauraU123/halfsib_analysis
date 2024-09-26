@@ -15,7 +15,7 @@ rule all:
         expand(outputdir + "{eg}/homozygosity.csv", eg=config["example"]),
         expand(outputdir  + "{eg}/plot.pdf", eg=config["example"]),
         expand(outputdir  + "{eg}/founder.hom", eg=config["example"]),
-        expand(outputdir +  "{eg}/only_homozygous.csv", eg=config["example"])
+        expand(outputdir +  "{eg}/table.csv", eg=config["example"])
 
 rule filter:
     message:
@@ -60,9 +60,7 @@ rule recode:
 
 rule rename_genes:
     message:
-        """
-        Renaming genes to standardised format.  map  -> csv 
-        """
+        """ Renaming genes to standardised format.  map  -> csv """
     input:
         input_ = outputdir +  "{example}/filtered.bim"
     output:
@@ -138,6 +136,8 @@ rule merge_linked:
     
 
 rule founder:
+    message:
+        """Filtering non-founder data based on provided ID list"""
     input:
         input_ = outputdir +  "{example}/recoded.map",
         ids_to_remove = inputdir + "{example}/IDlist.txt"
@@ -155,7 +155,7 @@ rule founder:
         
 rule homozygosity:
     message:
-        """Find the homozygosity locations"""
+        """Find homozygous locations based on founder data"""
     input:
         input = rules.founder.output.output
     output:
@@ -189,20 +189,20 @@ rule reformat_homozygosity:
         --output {output.output}
         """
 
-rule only_variants:
+rule table:
     message:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
         homozygous = rules.reformat_homozygosity.output,
         variants = rules.merge_linked.output
     output:
-        only_variants = outputdir +  "{example}/only_homozygous.csv"
+        table = outputdir +  "{example}/table.csv"
     shell:
         """
         python3 code/write_tables.py \
         --homozygosity {input.homozygous} \
         --variants {input.variants} \
-        --output_csv {output.only_variants}
+        --output_csv {output.table}
         """
 
 rule plot:
