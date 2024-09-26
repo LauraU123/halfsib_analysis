@@ -1,5 +1,5 @@
 
-configfile: "configfile.yaml"
+configfile: "config/configfile.yaml"
 outputdir = "results/"
 inputdir = "data/"
 
