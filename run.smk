@@ -15,7 +15,8 @@ rule all:
         expand(outputdir + "{eg}/homozygosity.csv", eg=config["example"]),
         expand(outputdir  + "{eg}/plot.pdf", eg=config["example"]),
         expand(outputdir  + "{eg}/founder.hom", eg=config["example"]),
-        expand(outputdir +  "{eg}/table.csv", eg=config["example"])
+        expand(outputdir +  "{eg}/all_common.csv", eg=config["example"])
+         expand(outputdir +  "{eg}/common_without_paternal_homozygosity.csv", eg=config["example"])
 
 rule filter:
     message:
@@ -212,7 +213,7 @@ rule output_table:
         homozygous = rules.reformat_homozygosity.output,
         variants = rules.merge_linked.output
     output:
-        table = outputdir +  "{example}/table.csv"
+        table = outputdir +  "{example}/common_without_paternal_homozygosity.csv"
     shell:
         """
         python3 code/write_tables.py \
