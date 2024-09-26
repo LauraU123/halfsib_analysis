@@ -4,7 +4,7 @@ import argparse
 
 
 def map_file(filepath):
-    """Output:list of  marker names from tab-delimited file."""
+    """Outputs list of marker names from tab-delim. file."""
     with open(filepath) as f:
         return [line.split(",")[-1].strip() for line in f]
 
@@ -24,7 +24,7 @@ def markers_and_trios(filepath):
     return dictionary, trios
 
 def process_haplotypes(chromosome, dictionary, trios, loc_list, outputfile, mode="haplotype"):
-    """Processes either haplotypes or identical loci based on the mode."""
+    """Processes haplotypes"""
     haplo = {}
     print(f"Processing {mode} for chromosome {chromosome}...")
 
@@ -84,17 +84,14 @@ if __name__ == '__main__':
     )
     parser.add_argument("--ped", required=True, help="input .ped file")
     parser.add_argument("--markers", required=True, help=".csv file with gene map")
-    parser.add_argument("--folder", required=True, help="output folder")
     parser.add_argument("--output", required=False, help=".csv file")
     parser.add_argument("--chr", required=True, help="number of chromosomes")
     args = parser.parse_args()
-
-    chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
-    chromosomes = [str(item).zfill(2) for item in chromosomes_]
+    #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
+    #chromosomes = [str(item).zfill(2) for item in chromosomes_]
     
-    for chr_ in chromosomes:
-        print(f"Processing chromosome {chr_}...")
-        dictionary, trios = markers_and_trios(args.ped)
-        loc_list = map_file(args.markers)
-        process_haplotypes(chr_, dictionary, trios, loc_list, args.folder + f"/{chr_}_output.csv", mode="haplotype")
-        #process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")
+    print(f"Processing chromosome {args.chr}...")
+    dictionary, trios = markers_and_trios(args.ped)
+    loc_list = map_file(args.markers)
+    process_haplotypes(args.chr, dictionary, trios, loc_list, args.output, mode="haplotype")
+    #process_haplotypes(chr, dictionary, trios, loc_list, f"example1/output/{chr}_comparison.csv", mode="identical")

@@ -36,7 +36,7 @@ def fewest_or_most_of_char(lst, min_or_max, char):
 
 def character_match(char1, char2):
     """
-    Checks if two characters match, considering 'N' as a wildcard.
+    Checks if characters match. A or B can only match themselves or N. N can match both.
     """
     ignored_mismatches = {"N": {"A", "B"}, "A": {"N"}, "B": {"N"}}
     return char1 == char2 or (char1 in ignored_mismatches and char2 in ignored_mismatches[char1])
@@ -101,12 +101,12 @@ def write_common_locations(filtered_sequences, output_filename, locations, chrom
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="Find paternal haplotypes from input data",
+        description="Find common locations from haplotypes paternal haplotypes",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--map", required=True, help="input .ped file")
-    parser.add_argument("--locations", required=True, help="input .ped file")
-    parser.add_argument("--folder", required=True, help="output file folder")
+    parser.add_argument("--map", required=True, help="input map file")
+    parser.add_argument("--output", required=True, help="output file")
+    parser.add_argument("--hapl", required=True, help="input haplotype file")
     parser.add_argument("--min_markers", required=True, help="minimum length of markers to be included in the analysis")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
     parser.add_argument("--fuse_adjacent", required=True, help="Should neighbouring variants with marker missing in between be fused")
@@ -116,13 +116,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     input_ = map_file(args.map)
-    with open(args.locations, "a") as f:
-        f.write("CHR;BP1;BP2\n")
 
-    chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
-    chromosomes = [str(item).zfill(2) for item in chromosomes_]
-    for chr in chromosomes:
-        print(f"Processing chromosome {chr}...")
-        all_common_subsequences = find_common_subsequences(args.folder + f"/{chr}_output.csv", args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
-        map_ = specific_chr_map(input_, int(chr))
-        write_common_locations(all_common_subsequences, args.locations, map_, chr, args.n_fraction_max, args.length)
+    #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
+    #chromosomes = [str(item).zfill(2) for item in chromosomes_]
+    #for chr in chromosomes:
+    print(f"Processing chromosome {args.chr}...")
+    all_common_subsequences = find_common_subsequences(args.hapl, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
+    map_ = specific_chr_map(input_, int(args.chr))
+    write_common_locations(all_common_subsequences, args.output, map_, args.chr, args.n_fraction_max, args.length)
+    print(f"Chromosome {args.chr} written to {args.output}")

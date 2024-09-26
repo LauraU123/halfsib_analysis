@@ -1,7 +1,7 @@
 # Parameters for high density data
 # output folders
 results_dir: "results/"
-example: ["example3"]
+example: ["example2"]
 # input data folder
 data_dir: "data/"
 

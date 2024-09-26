@@ -1,7 +1,7 @@
 # General Parameters 
 # output folders
 results_dir: "results/"
-example: ["example3", "example1"]
+example: ["example4"]
 # input data folder
 data_dir: "data/"
 
@@ -9,18 +9,30 @@ data_dir: "data/"
 # Chromosome number
 chrs: 29
 
-# Variant parameters
+#Haplotype parameters
 variants:
   min_markers: 5
   fuse_adjacent: True
   fuse_adjacent_nr: 1
   n_fraction_max: 0.3
-  min_var_length: 1200000
+  min_var_length: 900000
 
 #homozygosity parameters for plink
+# for higher density datasets, can lower kb to 500 and increase snp to 50-100
+# lower density is 1000 and 20 respectively
 homozygosity_params:
   density: 50
   kb: 1000
   snp: 20
   window_missing: 5
   window_snp: 50
+
+
+# high density params
+homozygous_params:
+  density: 50
+  kb: 300
+  snp: 37
+  window_missing: 0
+  window_snp: 50
+  window_het : 4
