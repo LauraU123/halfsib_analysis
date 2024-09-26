@@ -33,10 +33,10 @@ rule filter:
         output = outputdir + "{example}/filtered",
         chrs = config["chrs"]
     shell:
-        "module load snakemake"
-        "module load matplotlib"
-        "module load PLINK"
-        "plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}"
+        """
+        module load PLINK 
+        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        """
         
 
 
@@ -55,6 +55,7 @@ rule mendel:
         chrs = config["chrs"]
     shell:
         """
+        module load PLINK 
         plink --me 0.05 0.1 --bfile {params.input_}  --chr-set {params.chrs} --out {params.output} --make-bed
         """
     
@@ -72,6 +73,7 @@ rule recode:
         chrs = config["chrs"]
     shell:
         """
+        module load PLINK 
         plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set {params.chrs} --tab 
         """
 
@@ -146,7 +148,7 @@ rule merge_linked:
     message:
         """Merging linked files for all chrs"""
     input:
-        linked = expand("locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
+        linked = expand(outputdir + "{{example}}/locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
     output:
         linked = outputdir +  "{example}/locations.csv"
     shell:
@@ -167,6 +169,7 @@ rule founder:
         chrs = config["chrs"]
     shell:
         """
+        module load PLINK 
         plink --file {params.in_} --remove {input.ids_to_remove} --out {params.out} --make-bed --chr-set {params.chrs} 
         """
         
@@ -188,6 +191,7 @@ rule homozygosity:
         window_snp = config["homozygosity_params"]["window_snp"]
     shell:
         """
+        module load PLINK 
         plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density {params.density} --homozyg-kb {params.kb} --homozyg-snp {params.snp} --homozyg-window-missing {params.window_missing} --homozyg-window-snp {params.window_snp} --out {params.output}
         """
 
@@ -232,6 +236,7 @@ rule plot:
         plot = outputdir + "{example}/plot.pdf"
     shell:
         """
+        module load matplotlib
         python3 code/plot.py \
         --chr {input.chr_map_cattle} \
         --variants {input.variants} \
