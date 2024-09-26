@@ -135,6 +135,20 @@ rule merge_linked:
         echo "CHR;BP1;BP2\n" >> {output}
         cat {input} >> {output}
         """
+
+rule filter_founder:
+    message:
+        """Writing file to filter for founder"""
+    input:
+        rules.filter.output.fam
+    output:
+        outputdir + "{example}/IDlist.txt"
+    shell:
+        """
+        python3 code/founder.py \
+        --input {input} \
+        --output {output}
+        """
     
 
 rule founder:
@@ -142,7 +156,7 @@ rule founder:
         """Filtering non-founder data based on provided ID list"""
     input:
         input_ = outputdir +  "{example}/recoded.map",
-        ids_to_remove = inputdir + "{example}/IDlist.txt"
+        ids_to_remove = rules.filter_founder.output
     output:
         output = outputdir + "{example}/founder.bed"
     params:

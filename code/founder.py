@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import argparse
 
-def rm_val(lst, outputfile,  val):
+def rm_val(lst,  val):
    return [value for value in lst if value != val]
 
 def find_founder(inputfile, outputfile):
@@ -12,7 +12,7 @@ def find_founder(inputfile, outputfile):
     father_ID = rm_val(father_IDs, "0")[0]
     output_df = df[df.ID != father_ID]
     output_df = output_df.drop(["father", "mother", "a", "b"], axis=1)
-    output_df.to_csv(outputfile, index=False, header=False)
+    output_df.to_csv(outputfile, index=False, header=False, sep=" ")
 
 
 if __name__ == '__main__':
