@@ -73,7 +73,7 @@ rule rename_genes:
         """
 
 
-rule halfsib:
+rule paternal_haplotypes:
     message:
         """Finding paternal haplotypes in halfsibs"""
     input:
@@ -94,11 +94,11 @@ rule halfsib:
         """
 
 
-rule linked:
+rule linked_haplotypes:
     message:
         """Finding linked locations..."""
     input:
-        haplotype = rules.halfsib.output.paternal_haplotypes,
+        haplotype = rules.paternal_haplotypes.output.paternal_haplotypes,
         map_ = rules.rename_genes.output
     output:
         linked = outputdir +  "{example}/locations_{chr}.csv"
@@ -191,7 +191,7 @@ rule reformat_homozygosity:
         --output {output.output}
         """
 
-rule table:
+rule output_table:
     message:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
@@ -209,7 +209,7 @@ rule table:
 
 rule plot:
     message:
-        """constructing chromosome map plot with homozygosity and common sequences"""
+        """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
         variants = rules.merge_linked.output,
         chr_map_cattle = inputdir + "chr_map.csv",
