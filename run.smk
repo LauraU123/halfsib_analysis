@@ -121,26 +121,25 @@ rule linked:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        linked = outputdir +  "locations_{chr}.csv"
+        linked = outputdir +  "{example}/locations_{chr}.csv"
     params:
         min_length = config['variants']['min_var_length'],
-        folder = outputdir + "{example}/",
         n_fraction_max = config["variants"]["n_fraction_max"],
         fuse_adjacent = config["variants"]["fuse_adjacent"],
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
-        min_markers = config["variants"]["min_markers"]
+        min_markers = config["variants"]["min_markers"],
+        chrs = lambda wc: wc.get(chr)
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
-        --locations {output.variants} \
-        --folder {params.folder} \
         --min_markers {params.min_markers} \
         --length {params.min_length} \
         --n_fraction_max {params.n_fraction_max} \
         --fuse_adjacent {params.fuse_adjacent} \
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \
-        --output {output}
+        --output {linked.output} \
+        --chr {params.chrs}
         """
 
 rule merge_linked:
