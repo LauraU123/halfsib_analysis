@@ -132,7 +132,8 @@ rule merge_linked:
         linked = outputdir +  "{example}/locations.csv"
     shell:
         """
-        cat {input} > {output}
+        echo "CHR;BP1;BP2\n" >> {output}
+        cat {input} >> {output}
         """
     
 

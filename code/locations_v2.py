@@ -36,7 +36,7 @@ def fewest_or_most_of_char(lst, min_or_max, char):
 
 def character_match(char1, char2):
     """
-    Checks if two characters match, considering 'N' as a wildcard.
+    Checks if characters match. A or B can only match themselves or N. N can match both.
     """
     ignored_mismatches = {"N": {"A", "B"}, "A": {"N"}, "B": {"N"}}
     return char1 == char2 or (char1 in ignored_mismatches and char2 in ignored_mismatches[char1])
@@ -116,8 +116,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     input_ = map_file(args.map)
-    with open(args.output, "a") as f:
-        f.write("CHR;BP1;BP2\n")
 
     #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
     #chromosomes = [str(item).zfill(2) for item in chromosomes_]
@@ -126,3 +124,4 @@ if __name__ == '__main__':
     all_common_subsequences = find_common_subsequences(args.hapl, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
     map_ = specific_chr_map(input_, int(args.chr))
     write_common_locations(all_common_subsequences, args.output, map_, args.chr, args.n_fraction_max, args.length)
+    print(f"{args.chr} chromosome written to {args.output}")
