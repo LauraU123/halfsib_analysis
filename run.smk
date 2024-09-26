@@ -14,7 +14,8 @@ rule all:
         expand(outputdir + "{eg}/locations.csv",  eg=config["example"]), 
         expand(outputdir + "{eg}/homozygosity.csv", eg=config["example"]),
         expand(outputdir  + "{eg}/plot.pdf", eg=config["example"]),
-        expand(outputdir  + "{eg}/founder.hom", eg=config["example"])
+        expand(outputdir  + "{eg}/founder.hom", eg=config["example"]),
+        expand(outputdir +  "{eg}/only_homozygous.csv", eg=config["example"])
 
 rule filter:
     message:
@@ -32,9 +33,11 @@ rule filter:
         output = outputdir + "{example}/filtered",
         chrs = config["chrs"]
     shell:
-        """
-        plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
-        """
+        "module load snakemake"
+        "module load matplotlib"
+        "module load PLINK"
+        "plink --maf 0.01 --mind 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}"
+        
 
 
 rule mendel:
@@ -55,7 +58,6 @@ rule mendel:
         plink --me 0.05 0.1 --bfile {params.input_}  --chr-set {params.chrs} --out {params.output} --make-bed
         """
     
-
 rule recode:
     message:
         """Recode bim, bam and fam to ped"""
@@ -73,6 +75,7 @@ rule recode:
         plink --recode 12 --bfile {params.input_} --out {params.output} --chr-set {params.chrs} --tab 
         """
 
+
 rule rename_genes:
     message:
         """
@@ -88,6 +91,7 @@ rule rename_genes:
         --input {input.input_} \
         --output {output.filtered_csv}
         """
+
 
 rule halfsib:
     message:
@@ -109,14 +113,15 @@ rule halfsib:
         --chr {params.chromosomes}
         """
 
-rule variants:
+
+rule linked:
     message:
-        """Find the common locations from the files"""
+        """Find the linked locations from the files"""
     input:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        variants = outputdir +  "{example}/locations.csv"
+        linked = outputdir +  "{example}/locations.csv"
     params:
         min_length = config['variants']['min_var_length'],
         folder = outputdir + "{example}/",
@@ -138,6 +143,19 @@ rule variants:
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \
         --chr {params.chromosomes}
         """
+
+rule merge_linked:
+    message:
+        """Merging linked files for all chrs"""
+    input:
+        linked = expand("locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
+    output:
+        linked = outputdir +  "{example}/locations.csv"
+    shell:
+        """
+        cat {input} > {output}
+        """
+    
 
 rule founder:
     input:
@@ -194,12 +212,12 @@ rule only_variants:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
         homozygous = rules.reformat_homozygosity.output,
-        variants = rules.variants.output.variants
+        variants = rules.merge_linked.output
     output:
         only_variants = outputdir +  "{example}/only_homozygous.csv"
     shell:
         """
-        python3 code/only_variants.py \
+        python3 code/write_tables.py \
         --homozygosity {input.homozygous} \
         --variants {input.variants} \
         --output_csv {output.only_variants}
@@ -209,7 +227,7 @@ rule plot:
     message:
         """constructing chromosome map plot with homozygosity and common sequences"""
     input:
-        variants = rules.variants.output.variants,
+        variants = rules.merge_linked.output,
         chr_map_cattle = inputdir + "chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
