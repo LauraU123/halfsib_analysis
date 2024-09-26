@@ -98,7 +98,7 @@ rule linked:
     message:
         """Finding linked locations..."""
     input:
-        input_ = rules.halfsib.output.paternal_haplotypes,
+        haplotype = rules.halfsib.output.paternal_haplotypes,
         map_ = rules.rename_genes.output
     output:
         linked = outputdir +  "{example}/locations_{chr}.csv"
@@ -108,17 +108,18 @@ rule linked:
         fuse_adjacent = config["variants"]["fuse_adjacent"],
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
         min_markers = config["variants"]["min_markers"],
-        chrs = lambda wc: wc.get(chr)
+        chrs = lambda wc: wc.get('chr')
     shell:
         """
         python3 code/locations_v2.py \
         --map {input.map_} \
+        --hapl {input.haplotype} \
         --min_markers {params.min_markers} \
         --length {params.min_length} \
         --n_fraction_max {params.n_fraction_max} \
         --fuse_adjacent {params.fuse_adjacent} \
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \
-        --output {linked.output} \
+        --output {output.linked} \
         --chr {params.chrs}
         """
 

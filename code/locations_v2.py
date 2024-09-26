@@ -104,8 +104,9 @@ if __name__ == '__main__':
         description="Find common locations from haplotypes paternal haplotypes",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--map", required=True, help="input .ped file")
+    parser.add_argument("--map", required=True, help="input map file")
     parser.add_argument("--output", required=True, help="output file")
+    parser.add_argument("--hapl", required=True, help="input haplotype file")
     parser.add_argument("--min_markers", required=True, help="minimum length of markers to be included in the analysis")
     parser.add_argument("--length", required=True, help="minimum length of the common subsequence in bp")
     parser.add_argument("--fuse_adjacent", required=True, help="Should neighbouring variants with marker missing in between be fused")
@@ -115,13 +116,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     input_ = map_file(args.map)
-    with open(args.locations, "a") as f:
+    with open(args.output, "a") as f:
         f.write("CHR;BP1;BP2\n")
 
     #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
     #chromosomes = [str(item).zfill(2) for item in chromosomes_]
     #for chr in chromosomes:
     print(f"Processing chromosome {args.chr}...")
-    all_common_subsequences = find_common_subsequences(args.output, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
+    all_common_subsequences = find_common_subsequences(args.hapl, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
     map_ = specific_chr_map(input_, int(args.chr))
     write_common_locations(all_common_subsequences, args.output, map_, args.chr, args.n_fraction_max, args.length)
