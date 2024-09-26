@@ -124,4 +124,4 @@ if __name__ == '__main__':
     all_common_subsequences = find_common_subsequences(args.hapl, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
     map_ = specific_chr_map(input_, int(args.chr))
     write_common_locations(all_common_subsequences, args.output, map_, args.chr, args.n_fraction_max, args.length)
-    print(f"{args.chr} chromosome written to {args.output}")
+    print(f"Chromosome {args.chr} written to {args.output}")
