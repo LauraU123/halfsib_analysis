@@ -100,7 +100,7 @@ rule halfsib:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        common_sequences = expand(outputdir + "{{example}}/{chr}_output.csv", chr=expand_chromosomes(config["chrs"]))
+        common_sequences = outputdir + "{example}/{chr}_output.csv"
     params:
         folder = outputdir + "{example}/",
         chromosomes = config["chrs"]
@@ -116,16 +116,15 @@ rule halfsib:
 
 rule linked:
     message:
-        """Find the linked locations from the files"""
+        """Finding linked locations..."""
     input:
         input_ = rules.halfsib.output.common_sequences,
         map_ = rules.rename_genes.output
     output:
-        linked = outputdir +  "{example}/locations.csv"
+        linked = outputdir +  "locations_{chr}.csv"
     params:
         min_length = config['variants']['min_var_length'],
         folder = outputdir + "{example}/",
-        chromosomes = config["chrs"],
         n_fraction_max = config["variants"]["n_fraction_max"],
         fuse_adjacent = config["variants"]["fuse_adjacent"],
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
@@ -141,7 +140,7 @@ rule linked:
         --n_fraction_max {params.n_fraction_max} \
         --fuse_adjacent {params.fuse_adjacent} \
         --fuse_adjacent_nr {params.fuse_adjacent_nr} \
-        --chr {params.chromosomes}
+        --output {output}
         """
 
 rule merge_linked:
