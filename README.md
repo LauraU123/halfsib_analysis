@@ -12,8 +12,12 @@ For less dense data, config/medium_density.yaml can be used.
 These can also be manually adjusted. 
 
 
-## Inputs
+## Input Dataset
 
 The input should be in plink-friendly format - .bim, .bed and .fam.
+
+## Output
+
+The output consists of a table and graph. 
 
 
