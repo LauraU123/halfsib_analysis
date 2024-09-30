@@ -84,9 +84,9 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--chr", required=True, help="number of chromosomes")
-    parser.add_argument("--variants", required=True, help=".csv file")
+    parser.add_argument("--linked", required=True, help=".csv file")
     parser.add_argument("--homozyg", required=True, help=".csv file with ")
     parser.add_argument("--plot", required=True, help="output plot in pdf format")
     args = parser.parse_args()
 
-    plotting(args.chr, args.variants, args.homozyg, args.plot)
+    plotting(args.chr, args.linked, args.homozyg, args.plot)

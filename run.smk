@@ -15,8 +15,8 @@ rule all:
         expand(outputdir + "{eg}/homozygosity.csv", eg=config["example"]),
         expand(outputdir  + "{eg}/plot.pdf", eg=config["example"]),
         expand(outputdir  + "{eg}/founder.hom", eg=config["example"]),
-        expand(outputdir +  "{eg}/all_common.csv", eg=config["example"])
-         expand(outputdir +  "{eg}/common_without_paternal_homozygosity.csv", eg=config["example"])
+        expand(outputdir +  "{eg}/all_common.csv", eg=config["example"]),
+        expand(outputdir +  "{eg}/common_without_paternal_homozygosity.csv", eg=config["example"])
 
 rule filter:
     message:
@@ -211,22 +211,24 @@ rule output_table:
         """Finding variants which are not homozygous in the paternal genome"""
     input:
         homozygous = rules.reformat_homozygosity.output,
-        variants = rules.merge_linked.output
+        linked = rules.merge_linked.output
     output:
-        table = outputdir +  "{example}/common_without_paternal_homozygosity.csv"
+        table = outputdir +  "{example}/common_without_paternal_homozygosity.csv",
+        all_common = outputdir +  "{example}/all_common.csv"
     shell:
         """
         python3 code/write_tables.py \
         --homozygosity {input.homozygous} \
-        --variants {input.variants} \
-        --output_csv {output.table}
+        --linked {input.linked} \
+        --with_homozyg {output.all_common} \
+        --common {output.table}
         """
 
 rule plot:
     message:
         """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
-        variants = rules.merge_linked.output,
+        linked = rules.merge_linked.output,
         chr_map_cattle = inputdir + "chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
@@ -236,7 +238,7 @@ rule plot:
         module load matplotlib
         python3 code/plot.py \
         --chr {input.chr_map_cattle} \
-        --variants {input.variants} \
+        --linked {input.linked} \
         --homozyg {input.homozyg} \
         --plot {output.plot}
         """
