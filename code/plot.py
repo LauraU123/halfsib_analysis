@@ -21,8 +21,7 @@ def plotting(chr_file, locations, homozyg, output):
 
     ax.invert_yaxis()
     ax.xaxis.tick_top()
-
-    # Print blue regions from the test locations
+    # add common haplotype locations in blue
     for run in range(1, 30):
         subset = data[data['CHR'] == run]
         if len(subset) > 0:
@@ -33,7 +32,7 @@ def plotting(chr_file, locations, homozyg, output):
 
         else:
             print(f"No variant on chromosome {run}")
-    
+    # add homozygosity in paternal haplotypes in red
     for run in range(1, 30):
         subset = homozygosity[homozygosity['CHR'] == run]
         if len(subset) > 0:
@@ -51,11 +50,9 @@ def plotting(chr_file, locations, homozyg, output):
     ax.plot([], [], lw=line_width, color='red', label='Homozygosity')
     ax.plot([], [], lw=line_width, color='purple', label='Overlap')
     # y axis ticks and scaling 
-    # add fusing part to neighbouring homozygous regions so they do not overlap in plot
     y_ticks = ax.get_yticks()
     extra_lines = []
     for i in range(len(y_ticks)-1):
-        #adding 
         extra_lines.append(y_ticks[i] + y_ticks[i+1]/2)
         extra_lines.append(y_ticks[i] - y_ticks[i+1]/2)
 
