@@ -2,9 +2,9 @@
 # output folders
 results_dir: "results/"
 example: ["example2WGS"]
+
 # input data folder
 data_dir: "data/"
-
 
 variants:
   min_markers: 5
@@ -20,4 +20,3 @@ homozygosity_params:
   window_missing: 1
   window_snp: 50
   window_het : 4
-
