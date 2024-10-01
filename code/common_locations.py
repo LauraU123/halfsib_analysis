@@ -28,23 +28,19 @@ def specific_chr_map(dict_, chr):
 
 
 def fewest_or_most_of_char(lst, min_or_max, char):
-    """
-    Finds the index of the list entry with the fewest or most occurrences of a specific character.
-    """
+    """ find  index of list with fewest or most occurrences of a specific character."""
     counts = {i: entry.count(char) for i, entry in enumerate(lst)}
     return min(counts, key=counts.get) if min_or_max == "min" else max(counts, key=counts.get)
 
 def character_match(char1, char2):
     """
-    Checks if characters match. A or B can only match themselves or N. N can match both.
+    Check if characters match. A or B can only match themselves or N. N can match both.
     """
     ignored_mismatches = {"N": {"A", "B"}, "A": {"N"}, "B": {"N"}}
     return char1 == char2 or (char1 in ignored_mismatches and char2 in ignored_mismatches[char1])
 
 def find_common_subsequences(input_file, min_common_length=5, fuse_nr = 1, fuse_adjacent=True):
-    """
-    Identifies common subsequences across all haplotypes in the input file.
-    Optionally fuses adjacent subsequences separated by one or two positions.
+    """Identify common subsequences across all haplotypes in the input - optionally fuses adjacent subsequences separated by one or two positions.
     """
     haplotypes = pd.read_csv(input_file, header=None)[1].tolist()
     chr_length = len(haplotypes[0])
@@ -81,11 +77,11 @@ def find_common_subsequences(input_file, min_common_length=5, fuse_nr = 1, fuse_
     return common_subsequences
 
 
-### Output Function
+### Output
 
 def write_common_locations(filtered_sequences, output_filename, locations, chromosome, n_fraction_max= 0.3, min_len = 1000000):
     
-    """Writes the filtered sequences and their genomic locations to an output file."""
+    """Writing filtered sequences and genomic locations to outputfile"""
 
     with open(output_filename, "a") as location_file:
         for loc, seq in sorted(filtered_sequences.items(), key=lambda x: len(x[1]), reverse=True):
@@ -116,10 +112,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     input_ = map_file(args.map)
-
-    #chromosomes_ = [str(i) for i in range(1, int(args.chr)+1)]
-    #chromosomes = [str(item).zfill(2) for item in chromosomes_]
-    #for chr in chromosomes:
     print(f"Processing chromosome {args.chr}...")
     all_common_subsequences = find_common_subsequences(args.hapl, args.min_markers, args.fuse_adjacent_nr, args.fuse_adjacent)
     map_ = specific_chr_map(input_, int(args.chr))
