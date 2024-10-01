@@ -33,6 +33,10 @@ rule filter:
         name = inputdir + "{example}/plink",
         output = outputdir + "{example}/filtered",
         chrs = config["chrs"]
+    resources:
+        mem="900M",
+        time="00:02:10",
+        cpus=1
     shell:
         """
         module load PLINK 
@@ -52,6 +56,10 @@ rule recode:
         input_ = outputdir +  "{example}/filtered",
         output = outputdir + "{example}/recoded",
         chrs = config["chrs"]
+    resources:
+        mem="900M",
+        time="00:05:05",
+        cpus=1
     shell:
         """
         module load PLINK 
@@ -66,6 +74,10 @@ rule rename_genes:
         input_ = outputdir +  "{example}/filtered.bim"
     output:
         filtered_csv = outputdir + "{example}/filtered.csv"
+    resources:
+        mem="4G",
+        time="00:06:06",
+        cpus=1
     shell:
         """
         python3 code/rename_genes.py \
@@ -85,6 +97,10 @@ rule paternal_haplotypes:
     params:
         folder = outputdir + "{example}/",
         chromosomes = lambda wc: wc.get('chr')
+    resources:
+        mem="20G",
+        time="00:10:00",
+        cpus=3
     shell:
         """
         python3 code/halfsib_v2.py \
@@ -110,6 +126,10 @@ rule linked_haplotypes:
         fuse_adjacent_nr = config["variants"]["fuse_adjacent_nr"],
         min_markers = config["variants"]["min_markers"],
         chrs = lambda wc: wc.get('chr')
+    resources:
+        mem="10G",
+        time="00:05:06",
+        cpus=2
     shell:
         """
         python3 code/locations_v2.py \
@@ -131,6 +151,10 @@ rule merge_linked:
         linked = expand(outputdir + "{{example}}/locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
     output:
         linked = outputdir +  "{example}/locations.csv"
+    resources:
+        mem="900M",
+        time="00:05:04",
+        cpus=1
     shell:
         """
         echo "CHR;BP1;BP2\n" >> {output}
@@ -144,6 +168,10 @@ rule filter_founder:
         rules.filter.output.fam
     output:
         outputdir + "{example}/IDlist.txt"
+    resources:
+        mem="900M",
+        time="00:05:04",
+        cpus=1
     shell:
         """
         python3 code/founder.py \
@@ -164,6 +192,10 @@ rule founder:
         in_ = outputdir +  "{example}/recoded",
         out = outputdir +  "{example}/founder",
         chrs = config["chrs"]
+    resources:
+        mem="900M",
+        time="00:05:04",
+        cpus=1
     shell:
         """
         module load PLINK 
@@ -186,6 +218,10 @@ rule homozygosity:
         snp = config["homozygosity_params"]["snp"],
         window_missing = config["homozygosity_params"]["window_missing"],
         window_snp = config["homozygosity_params"]["window_snp"]
+    resources:
+        mem="900M",
+        time="00:05:03",
+        cpus=1
     shell:
         """
         module load PLINK 
@@ -199,6 +235,10 @@ rule reformat_homozygosity:
         input_ = rules.homozygosity.output
     output:
         output = outputdir +  "{example}/homozygosity.csv"
+    resources:
+        mem="500M",
+        time="00:05:05",
+        cpus=1
     shell:
         """
         python3 code/homozygosity.py \
@@ -215,6 +255,10 @@ rule output_table:
     output:
         table = outputdir +  "{example}/common_without_paternal_homozygosity.csv",
         all_common = outputdir +  "{example}/all_common.csv"
+    resources:
+        mem="500M",
+        time="00:05:04",
+        cpus=1
     shell:
         """
         python3 code/write_tables.py \
@@ -233,6 +277,10 @@ rule plot:
         homozyg = rules.reformat_homozygosity.output,
     output:
         plot = outputdir + "{example}/plot.pdf"
+    resources:
+        mem="500M",
+        time="00:05:05",
+        cpus=1
     shell:
         """
         module load matplotlib

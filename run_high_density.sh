@@ -1,7 +1,4 @@
 #! /bin/bash
-
 module load snakemake
-module load matplotlib
-module load PLINK
 
-snakemake --cores all --configfile high_density.yaml -s run.smk
+snakemake --cores all --configfile config/high_density.yaml -s run.smk --jobs 15 --cluster "sbatch -ppibu_el8  --mem={resources.mem} --cpus-per-task={threads} --time={resources.time}" --latency-wait 30

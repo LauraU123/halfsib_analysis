@@ -6,6 +6,7 @@ import argparse
 This script renames each gene to a standard name in the format chr_position. 
 """
 
+
 def rename_genes(input_, output):
     print(input_)
     df = pd.read_csv(input_, sep="\t", header=None)
