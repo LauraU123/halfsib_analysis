@@ -103,7 +103,7 @@ rule paternal_haplotypes:
         cpus=3
     shell:
         """
-        python3 code/halfsib_v2.py \
+        python3 code/halfsib_paternal_haplotypes.py \
         --ped {input.ped} \
         --output {output.paternal_haplotypes} \
         --markers {input.gene_map} \
@@ -132,7 +132,7 @@ rule linked_haplotypes:
         cpus=2
     shell:
         """
-        python3 code/locations_v2.py \
+        python3 code/common_locations.py \
         --map {input.map_} \
         --hapl {input.haplotype} \
         --min_markers {params.min_markers} \
