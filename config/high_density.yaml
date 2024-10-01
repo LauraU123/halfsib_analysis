@@ -13,10 +13,11 @@ variants:
   n_fraction_max: 0.3
   min_var_length: 200000
 
-homozygous_params:
+homozygosity_params:
   density: 50
   kb: 300
   snp: 37
   window_missing: 1
   window_snp: 50
   window_het : 4
+
