@@ -8,6 +8,7 @@ def expand_chromosomes(number_of_chrs):
     chromosomes = [str(item).zfill(2) for item in chromosomes_]
     return(chromosomes)
 
+
 def get_chr_nr(species):
     if species == "cow" or "Bos taurus":
         return(29)
@@ -34,19 +35,21 @@ rule all:
         expand(outputdir +  "{eg}/all_common.csv", eg=config["example"]),
         expand(outputdir +  "{eg}/common_without_paternal_homozygosity.csv", eg=config["example"])
 
+input_files = glob_wildcards("data/{prefix}.fam")
+
 rule filter:
     message:
         """Filtering the input files with maf and mind, checking for mendelian errors with me"""
     input:
-        snp = inputdir + "{example}/plink.bed",
-        lgen = inputdir + "{example}/plink.bim",
-        sample = inputdir + "{example}/plink.fam"
+        snp = expand(inputdir + "{{example}}/{prefix}.bed", prefix=input_files.prefix),
+        lgen = expand(inputdir + "{{example}}/{prefix}.bim", prefix=input_files.prefix),
+        sample = expand(inputdir + "{{example}}/{prefix}.fam", prefix=input_files.prefix)
     output:
         bam = (outputdir + "{example}/filtered.bed"),
         bim = (outputdir + "{example}/filtered.bim"),
         fam = (outputdir + "{example}/filtered.fam")
     params:
-        name = inputdir + "{example}/plink",
+        name = inputdir + "{example}/{prefix}",
         output = outputdir + "{example}/filtered",
         chrs = get_chr_nr(config["species"])
     resources:
