@@ -8,6 +8,22 @@ def expand_chromosomes(number_of_chrs):
     chromosomes = [str(item).zfill(2) for item in chromosomes_]
     return(chromosomes)
 
+def get_chr_nr(species):
+    if species == "cow" or "Bos taurus":
+        return(29)
+    elif species == "pig" or "Sus scrofa":
+        return(31)
+    elif species == "sheep" or "Ovis aries":
+        return(26)
+    elif species == "goat" or "Capra hircus":
+        return(29)
+    elif species == "dog" or "Canis familiaris":
+        return(38)
+    elif species == "cat" or "Felis cattus":
+        return(18)
+    elif species == "alpaca" or "Vicugna pacos":
+        return(36)
+
 
 rule all:
     input:
