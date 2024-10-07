@@ -27,15 +27,15 @@ def writing_to_table(var_file, homozygosity_file, output_file_common, output_fil
                 if end1 > end2:
                     non_overlapping.append((chr1, end2, end1))
     for i in non_overlapping:
-        lst.append([int(i[0]),  f"{i[1]} - {i[2]}",  i[2]-i[1]])
+        lst.append([int(i[0]),  i[1], i[2],  i[2]-i[1]])
     for i in all_:
-        lst_all.append([int(i[0]),  f"{i[1]} - {i[2]}",  i[2]-i[1]])
+        lst_all.append([int(i[0]),  i[1],  i[2],  i[2]-i[1]])
     with open(output_file_common, "w") as f:
-        df = pd.DataFrame(lst, columns=["Chromosome", "Location", "Length"])
+        df = pd.DataFrame(lst, columns=["Chromosome", "Start", "End", "Length"])
         df.to_csv(output_file_common, index=False, sep=" ")
     
     with open(output_file_all, "w") as file_:
-        df_1 = pd.DataFrame(lst_all, columns=["Chromosome", "Location", "Length"])
+        df_1 = pd.DataFrame(lst_all, columns=["Chromosome", "Start", "End", "Length"])
         df_1.to_csv(output_file_all, index=False, sep=" ")
 
     #non_overlapping = pd.DataFrame(non_overlapping, columns=['CHR', 'BP1', 'BP2'])
