@@ -5,7 +5,7 @@ import argparse
 from matplotlib.ticker import FuncFormatter
 
 
-def plotting(chr_file, locations, homozyg, output):
+def plotting(chr_file, chr_nr, locations, homozyg, output):
 
     chromosomes = pd.read_csv(chr_file, sep=";")
     data = pd.read_csv(locations, sep=";")
@@ -22,7 +22,7 @@ def plotting(chr_file, locations, homozyg, output):
     ax.invert_yaxis()
     ax.xaxis.tick_top()
     # add common haplotype locations in blue
-    for run in range(1, 30):
+    for run in range(1, int(chr_nr)+1):
         subset = data[data['CHR'] == run]
         if len(subset) > 0:
             for _, row in subset.iterrows():
@@ -80,10 +80,11 @@ if __name__ == '__main__':
         description="Plot output with chromosomes",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--chr", required=True, help="number of chromosomes")
+    parser.add_argument("--chr_file", required=True, help="number of chromosomes")
     parser.add_argument("--linked", required=True, help=".csv file")
+    parser.add_argument("--chr_nr", required=True, help=".csv file")
     parser.add_argument("--homozyg", required=True, help=".csv file with ")
     parser.add_argument("--plot", required=True, help="output plot in pdf format")
     args = parser.parse_args()
 
-    plotting(args.chr, args.linked, args.homozyg, args.plot)
+    plotting(args.chr_file, args.chr_nr, args.linked, args.homozyg, args.plot)

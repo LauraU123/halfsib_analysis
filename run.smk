@@ -26,9 +26,9 @@ rule filter:
         lgen = inputdir + "{example}/plink.bim",
         sample = inputdir + "{example}/plink.fam"
     output:
-        bam = outputdir + "{example}/filtered.bed",
-        bim = outputdir + "{example}/filtered.bim",
-        fam = outputdir + "{example}/filtered.fam"
+        bam = (outputdir + "{example}/filtered.bed"),
+        bim = (outputdir + "{example}/filtered.bim"),
+        fam = (outputdir + "{example}/filtered.fam")
     params:
         name = inputdir + "{example}/plink",
         output = outputdir + "{example}/filtered",
@@ -50,8 +50,8 @@ rule recode:
     input:
         input_ = rules.filter.output.bim
     output:
-        output = outputdir + "{example}/recoded.ped",
-        map_ = outputdir +  "{example}/recoded.map"
+        output = (outputdir + "{example}/recoded.ped"),
+        map_ = (outputdir +  "{example}/recoded.map")
     params:
         input_ = outputdir +  "{example}/filtered",
         output = outputdir + "{example}/recoded",
@@ -73,7 +73,7 @@ rule rename_genes:
     input:
         input_ = outputdir +  "{example}/filtered.bim"
     output:
-        filtered_csv = outputdir + "{example}/filtered.csv"
+        filtered_csv = (outputdir + "{example}/filtered.csv")
     resources:
         mem="4G",
         time="00:06:06",
@@ -93,7 +93,7 @@ rule paternal_haplotypes:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        paternal_haplotypes = outputdir + "{example}/{chr}_output.csv"
+        paternal_haplotypes = (outputdir + "{example}/{chr}_output.csv")
     params:
         folder = outputdir + "{example}/",
         chromosomes = lambda wc: wc.get('chr')
@@ -118,7 +118,7 @@ rule linked_haplotypes:
         haplotype = rules.paternal_haplotypes.output.paternal_haplotypes,
         map_ = rules.rename_genes.output
     output:
-        linked = outputdir +  "{example}/locations_{chr}.csv"
+        linked = (outputdir +  "{example}/locations_{chr}.csv")
     params:
         min_length = config['variants']['min_var_length'],
         n_fraction_max = config["variants"]["n_fraction_max"],
@@ -150,7 +150,7 @@ rule merge_linked:
     input:
         linked = expand(outputdir + "{{example}}/locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
     output:
-        linked = outputdir +  "{example}/locations.csv"
+        linked = (outputdir +  "{example}/locations.csv")
     resources:
         mem="900M",
         time="00:05:04",
@@ -281,11 +281,14 @@ rule plot:
         mem="500M",
         time="00:05:05",
         cpus=1
+    params:
+        chrs = config["chrs"]
     shell:
         """
         module load matplotlib
         python3 code/plot.py \
-        --chr {input.chr_map_cattle} \
+        --chr_file {input.chr_map_cattle} \
+        --chr_nr {params.chrs} \
         --linked {input.linked} \
         --homozyg {input.homozyg} \
         --plot {output.plot}
