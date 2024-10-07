@@ -56,7 +56,7 @@ rule filter:
     shell:
         """
         module load PLINK 
-        plink --maf 0.01 --mind 0.1 --me 0.05 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --maf 0.01 --mind 0.1 --me 0.05 0.1 --geno 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
         
     
