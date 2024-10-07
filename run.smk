@@ -48,7 +48,7 @@ rule filter:
     params:
         name = inputdir + "{example}/plink",
         output = outputdir + "{example}/filtered",
-        chrs = config["chrs"]
+        chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
         time="00:02:10",
@@ -71,7 +71,7 @@ rule recode:
     params:
         input_ = outputdir +  "{example}/filtered",
         output = outputdir + "{example}/recoded",
-        chrs = config["chrs"]
+        chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
         time="00:05:05",
@@ -164,7 +164,7 @@ rule merge_linked:
     message:
         """Merging linked files for all chrs"""
     input:
-        linked = expand(outputdir + "{{example}}/locations_{chr}.csv", chr=expand_chromosomes(config["chrs"]))
+        linked = expand(outputdir + "{{example}}/locations_{chr}.csv", chr=expand_chromosomes(get_chr_nr(config["species"])))
     output:
         linked = (outputdir +  "{example}/locations.csv")
     resources:
@@ -207,7 +207,7 @@ rule founder:
     params:
         in_ = outputdir +  "{example}/recoded",
         out = outputdir +  "{example}/founder",
-        chrs = config["chrs"]
+        chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
         time="00:05:04",
@@ -228,7 +228,7 @@ rule homozygosity:
     params:
         input_ = outputdir +  "{example}/founder",
         output = outputdir +  "{example}/founder",
-        chrs = config["chrs"],
+        chrs = get_chr_nr(config["species"]),
         density = config["homozygosity_params"]["density"],
         kb = config["homozygosity_params"]["kb"],
         snp = config["homozygosity_params"]["snp"],
@@ -298,7 +298,7 @@ rule plot:
         time="00:05:05",
         cpus=1
     params:
-        chrs = config["chrs"]
+        chrs = get_chr_nr(config["species"])
     shell:
         """
         module load matplotlib
