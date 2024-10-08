@@ -7,22 +7,23 @@ def expand_chromosomes(number_of_chrs):
     return(chromosomes)
 
 
-def get_chr_nr(species):
-    if species == "cow" or "Bos taurus":
+def get_chr_nr(sp):
+    if sp == "cow":
         return(29)
-    elif species == "pig" or "Sus scrofa":
+    if sp == "pig":
         return(31)
-    elif species == "sheep" or "Ovis aries":
+    if sp == "sheep":
         return(26)
-    elif species == "goat" or "Capra hircus":
+    if sp == "goat":
         return(29)
-    elif species == "dog" or "Canis familiaris":
+    if sp == "dog":
         return(38)
-    elif species == "cat" or "Felis cattus":
+    if sp == "cat":
         return(18)
-    elif species == "alpaca" or "Vicugna pacos":
+    if sp == "alpaca":
         return(36)
 
+print(expand_chromosomes(get_chr_nr("dog")))
 
 rule all:
     input:
@@ -294,7 +295,7 @@ rule plot:
         """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
         linked = rules.merge_linked.output,
-        chr_map_cattle = lambda wc: f"{wc.get('species')}_chr_map.csv",
+        chr_map = config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
         plot = "{example}/plot.pdf"
@@ -308,7 +309,7 @@ rule plot:
         """
         module load matplotlib
         python3 code/plot.py \
-        --chr_file {input.chr_map_cattle} \
+        --chr_file {input.chr_map} \
         --chr_nr {params.chrs} \
         --linked {input.linked} \
         --homozyg {input.homozyg} \
