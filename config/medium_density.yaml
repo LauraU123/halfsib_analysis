@@ -3,7 +3,6 @@
 input: "data/example2"
 output: "results/example2"
 
-
 species: "cow"
 
 filter:
@@ -11,7 +10,6 @@ filter:
   geno: 0.1
   mind: 0.1
   maf: 0.01
-
 
 variants:
   min_markers: 5
