@@ -1,9 +1,16 @@
 # Parameters for medium density data
 # output folders
-results_dir: "results/"
-example: ["example2"]
-# input data folder
-data_dir: "data/"
+input: "data/example2"
+output: "results/example2"
+
+
+species: "cow"
+
+filter:
+  me: 0.05 0.1
+  geno: 0.1
+  mind: 0.1
+  maf: 0.01
 
 
 variants:

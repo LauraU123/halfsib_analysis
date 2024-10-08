@@ -11,7 +11,7 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
     data = pd.read_csv(locations, sep=";")
     homozygosity = pd.read_csv(homozyg, sep=";")
     scale = 1000000
-    pdf_width = 11.69
+    pdf_width = 15.69
     pdf_height = 8.27
     line_width = 5
     plt.figure(figsize=(pdf_width, pdf_height))

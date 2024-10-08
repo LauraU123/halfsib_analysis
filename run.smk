@@ -1,7 +1,7 @@
 
-configfile: "config/configfile.yaml"
-outputdir = "results/"
-inputdir = "data/"
+#configfile: "config/configfile.yaml"
+outputdir = config["input"]
+inputdir = config["output"]
 
 def expand_chromosomes(number_of_chrs):
     chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
@@ -51,7 +51,11 @@ rule filter:
     params:
         name = inputdir + "{example}/{prefix}",
         output = outputdir + "{example}/filtered",
-        chrs = get_chr_nr(config["species"])
+        chrs = get_chr_nr(config["species"]),
+        maf = config["filter"]["maf"],
+        mind = config["filter"]["mind"],
+        geno = config["filter"]["geno"],
+        mendel = config["filter"]["me"]
     resources:
         mem="900M",
         time="00:02:10",
@@ -59,7 +63,7 @@ rule filter:
     shell:
         """
         module load PLINK 
-        plink --maf 0.01 --mind 0.1 --me 0.05 0.1 --geno 0.1 --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --maf{params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
         
     
