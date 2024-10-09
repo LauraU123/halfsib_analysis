@@ -1,5 +1,7 @@
 
-#configfile: "config/configfile.yaml"
+inputdir = config["input"]
+outputdir = config["output"]
+input_files =  glob_wildcards(f"{inputdir}/{{prefix}}.fam")
 
 def expand_chromosomes(number_of_chrs):
     chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
@@ -23,33 +25,32 @@ def get_chr_nr(sp):
     if sp == "alpaca":
         return(36)
 
-print(expand_chromosomes(get_chr_nr("dog")))
 
 rule all:
     input:
-        expand("{eg}/locations.csv",  eg=config["output"]), 
-        expand("{eg}/homozygosity.csv", eg=config["output"]),
-        expand("{eg}/plot.pdf", eg=config["output"]),
-        expand("{eg}/founder.hom", eg=config["output"]),
-        expand("{eg}/all_common.csv", eg=config["output"]),
-        expand( "{eg}/common_without_paternal_homozygosity.csv", eg=config["output"])
+        expand("{out}/locations.csv",  out=config["output"]), 
+        expand("{out}/homozygosity.csv", out=config["output"]),
+        expand("{out}/plot.pdf", out=config["output"]),
+        expand("{out}/founder.hom", out=config["output"]),
+        expand("{out}/all_common.csv", out=config["output"]),
+        expand( "{out}/common_without_paternal_homozygosity.csv", out=config["output"]),
+        expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
-input_files = glob_wildcards("data/{prefix}.fam")
 
 rule filter:
     message:
         """Filtering the input files with maf and mind, checking for mendelian errors with me"""
     input:
-        snp = expand("{{example}}/{prefix}.bed", prefix=input_files.prefix),
-        lgen = expand("{{example}}/{prefix}.bim", prefix=input_files.prefix),
-        sample = expand("{{example}}/{prefix}.fam", prefix=input_files.prefix)
+        snp = f"{inputdir}/{{prefix}}.bed", 
+        lgen = f"{inputdir}/{{prefix}}.bim", 
+        sample = f"{inputdir}/{{prefix}}.fam"
     output:
-        bam = "{example}/filtered.bed",
-        bim = "{example}/filtered.bim",
-        fam = "{example}/filtered.fam"
+        bam = outputdir + "/{prefix}_filtered.bed",
+        bim = outputdir + "/{prefix}_filtered.bim",
+        fam = outputdir + "/{prefix}_filtered.fam"
     params:
-        name =  "{example}/{prefix}",
-        output =  "{example}/filtered",
+        name = lambda wc :  f"{inputdir}/{wc.prefix}",
+        output =  outputdir + "/{prefix}_filtered",
         chrs = get_chr_nr(config["species"]),
         maf = config["filter"]["maf"],
         mind = config["filter"]["mind"],
@@ -62,7 +63,7 @@ rule filter:
     shell:
         """
         module load PLINK 
-        plink --maf{params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
+        plink --maf {params.maf} --mind {params.mind} --me {params.mendel} --geno {params.geno} --bfile {params.name} --out {params.output} --make-bed --chr-set {params.chrs}
         """
         
     
@@ -72,11 +73,11 @@ rule recode:
     input:
         input_ = rules.filter.output.bim
     output:
-        output = ("{example}/recoded.ped"),
-        map_ = (  "{example}/recoded.map")
+        output = ("{outputdir}/{prefix}_recoded.ped"),
+        map_ = (  "{outputdir}/{prefix}_recoded.map")
     params:
-        input_ =  "{example}/filtered",
-        output =  "{example}/recoded",
+        input_ =  "{outputdir}/{prefix}_filtered",
+        output =  "{outputdir}/{prefix}_recoded",
         chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
@@ -93,9 +94,9 @@ rule rename_genes:
     message:
         """ Renaming genes to standardised format.  map  -> csv """
     input:
-        input_ = "{example}/filtered.bim"
+        input_ = "{outputdir}/{prefix}_filtered.bim"
     output:
-        filtered_csv = "{example}/filtered.csv"
+        filtered_csv = "{outputdir}/{prefix}_filtered.csv"
     resources:
         mem="4G",
         time="00:06:06",
@@ -115,9 +116,9 @@ rule paternal_haplotypes:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        paternal_haplotypes = "{example}/{chr}_output.csv"
+        paternal_haplotypes = "{outputdir}/{prefix}_{chr}_output.csv"
     params:
-        folder = "{example}/",
+        folder = "{outputdir}/",
         chromosomes = lambda wc: wc.get('chr')
     resources:
         mem="20G",
@@ -140,7 +141,7 @@ rule linked_haplotypes:
         haplotype = rules.paternal_haplotypes.output.paternal_haplotypes,
         map_ = rules.rename_genes.output
     output:
-        linked = ("{example}/locations_{chr}.csv")
+        linked = ("{outputdir}/{prefix}_locations_{chr}.csv")
     params:
         min_length = config['variants']['min_var_length'],
         n_fraction_max = config["variants"]["n_fraction_max"],
@@ -170,9 +171,9 @@ rule merge_linked:
     message:
         """Merging linked files for all chrs"""
     input:
-        linked = expand("{{example}}/locations_{chr}.csv", chr=expand_chromosomes(get_chr_nr(config["species"])))
+        linked = expand("{{outputdir}}/{{prefix}}_locations_{chr}.csv", chr=expand_chromosomes(get_chr_nr(config["species"])))
     output:
-        linked = "{example}/locations.csv"
+        linked = "{outputdir}/{prefix}_locations.csv"
     resources:
         mem="900M",
         time="00:05:04",
@@ -189,7 +190,7 @@ rule filter_founder:
     input:
         rules.filter.output.fam
     output:
-        "{example}/IDlist.txt"
+        "{outputdir}/{prefix}_IDlist.txt"
     resources:
         mem="900M",
         time="00:05:04",
@@ -206,13 +207,13 @@ rule founder:
     message:
         """Filtering non-founder data based on provided ID list"""
     input:
-        input_ =  "{example}/recoded.map",
+        input_ =  "{outputdir}/{prefix}_recoded.map",
         ids_to_remove = rules.filter_founder.output
     output:
-        output = "{example}/founder.bed"
+        output = "{outputdir}/{prefix}_founder.bed"
     params:
-        in_ =  "{example}/recoded",
-        out = "{example}/founder",
+        in_ =  "{outputdir}/{prefix}_recoded",
+        out = "{outputdir}/{prefix}_founder",
         chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
@@ -230,10 +231,10 @@ rule homozygosity:
     input:
         input = rules.founder.output.output
     output:
-        output = "{example}/founder.hom"
+        output = "{outputdir}/{prefix}_founder.hom"
     params:
-        input_ = "{example}/founder",
-        output = "{example}/founder",
+        input_ = "{outputdir}/{prefix}_founder",
+        output = "{outputdir}/{prefix}_founder",
         chrs = get_chr_nr(config["species"]),
         density = config["homozygosity_params"]["density"],
         kb = config["homozygosity_params"]["kb"],
@@ -256,7 +257,7 @@ rule reformat_homozygosity:
     input:
         input_ = rules.homozygosity.output
     output:
-        output =  "{example}/homozygosity.csv"
+        output =  "{outputdir}/{prefix}_homozygosity.csv"
     resources:
         mem="500M",
         time="00:05:05",
@@ -275,8 +276,8 @@ rule output_table:
         homozygous = rules.reformat_homozygosity.output,
         linked = rules.merge_linked.output
     output:
-        table =  "{example}/common_without_paternal_homozygosity.csv",
-        all_common = "{example}/all_common.csv"
+        table =  "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv",
+        all_common = "{outputdir}/{prefix}_all_common.csv"
     resources:
         mem="500M",
         time="00:05:04",
@@ -298,7 +299,7 @@ rule plot:
         chr_map = config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
-        plot = "{example}/plot.pdf"
+        plot = "{outputdir}/{prefix}_plot.pdf"
     resources:
         mem="500M",
         time="00:05:05",
@@ -318,13 +319,13 @@ rule plot:
 
 rule cleanup:
     input:
-        a= expand("{eg}/locations.csv",  eg=config["output"]), 
-        b= expand("{eg}/homozygosity.csv", eg=config["output"]),
-        c = expand("{eg}/plot.pdf", eg=config["output"]),
-        e = expand("{eg}/all_common.csv", eg=config["output"]),
-        f = expand( "{eg}/common_without_paternal_homozygosity.csv", eg=config["output"]),
-        linked = expand("{eg}/locations_{chr}.csv", eg = config["output"], chr=expand_chromosomes(get_chr_nr(config["species"]))),
-        haplotypes = expand("{eg}/{chr}_output.csv", eg = config["output"], chr=expand_chromosomes(get_chr_nr(config["species"])))
+        a= expand("{outputdir}/{prefix}_locations.csv",  outputdir=config["output"], prefix=input_files.prefix), 
+        b= expand("{outputdir}/{prefix}_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
+        c = expand("{outputdir}/{prefix}_plot.pdf", outputdir=config["output"], prefix=input_files.prefix),
+        e = expand("{outputdir}/{prefix}_all_common.csv", outputdir=config["output"], prefix=input_files.prefix),
+        f = expand( "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
+        linked = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
+        haplotypes = expand("{outputdir}/{prefix}_{chr}_output.csv", outputdir = config["output"], prefix=input_files.prefix, chr=expand_chromosomes(get_chr_nr(config["species"])))
     resources:
         mem="500M",
         time="00:05:05",
