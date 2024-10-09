@@ -3,10 +3,11 @@ inputdir = config["input"]
 outputdir = config["output"]
 #expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
-if inputdir[-1] != "/":
-    inputdir = inputdir[:-1]
-if outputdir[-1] == "/":
-    outputdir = outputdir[:-1]
+#if inputdir[-1] != "/":
+#    inputdir = inputdir + "/"
+#    print(inputdir)
+#if outputdir[-1] != "/":
+#    outputdir = outputdir[:-1]
 
 
 input_files =  glob_wildcards(f"{inputdir}/{{prefix, [^/]+}}.fam")
