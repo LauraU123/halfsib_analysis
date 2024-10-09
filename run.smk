@@ -303,7 +303,7 @@ rule plot:
         """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
         linked = rules.merge_linked.output,
-        chr_map = config['species'] + "_chr_map.csv",
+        chr_map = "chr_maps/" + config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
     output:
         plot = "{outputdir}/{prefix}_plot.pdf"
