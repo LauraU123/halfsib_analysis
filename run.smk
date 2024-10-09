@@ -4,7 +4,7 @@ outputdir = config["output"]
 #expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
 if inputdir[-1] == "/":
-    inputdir = inputdir + "/"
+    inputdir = inputdir[:-1]
 #    print(inputdir)
 if outputdir[-1] == "/":
     outputdir = outputdir[:-1]
