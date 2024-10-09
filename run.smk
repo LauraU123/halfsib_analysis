@@ -21,7 +21,7 @@ def get_chr_nr(sp):
     if sp == "cow":
         return(29)
     if sp == "pig":
-        return(31)
+        return(18)
     if sp == "sheep":
         return(26)
     if sp == "goat":
