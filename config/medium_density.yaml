@@ -1,6 +1,6 @@
 # Parameters for medium density data
 # output folders
-input: "data/example2"
+input: "/data/projects/p921_Genetic_characterisation_of_mutations_leading_to_the_development_of_a_rudimentary_extra_pair_of_limbs_in_domestic_animals/halfsib_analysis/halfsib_analysis/data/example2/"
 output: "results/example2"
 
 species: "cow"
