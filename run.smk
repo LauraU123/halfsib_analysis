@@ -1,6 +1,13 @@
 
 inputdir = config["input"]
 outputdir = config["output"]
+
+if inputdir[-1] == "/":
+    inputdir = inputdir[:-1]
+if outputdir[-1] == "/":
+    outputdir = outputdir[:-1]
+
+
 input_files =  glob_wildcards(f"{inputdir}/{{prefix}}.fam")
 
 def expand_chromosomes(number_of_chrs):
