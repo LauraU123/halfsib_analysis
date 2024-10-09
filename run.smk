@@ -1,14 +1,15 @@
 
 inputdir = config["input"]
 outputdir = config["output"]
+#expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
-if inputdir[-1] == "/":
+if inputdir[-1] != "/":
     inputdir = inputdir[:-1]
 if outputdir[-1] == "/":
     outputdir = outputdir[:-1]
 
 
-input_files =  glob_wildcards(f"{inputdir}/{{prefix}}.fam")
+input_files =  glob_wildcards(f"{inputdir}/{{prefix, [^/]+}}.fam")
 
 def expand_chromosomes(number_of_chrs):
     chromosomes_ = [str(i) for i in range(1, int(number_of_chrs)+1)]
@@ -35,13 +36,12 @@ def get_chr_nr(sp):
 
 rule all:
     input:
-        expand("{out}/locations.csv",  out=config["output"]), 
-        expand("{out}/homozygosity.csv", out=config["output"]),
-        expand("{out}/plot.pdf", out=config["output"]),
-        expand("{out}/founder.hom", out=config["output"]),
-        expand("{out}/all_common.csv", out=config["output"]),
-        expand( "{out}/common_without_paternal_homozygosity.csv", out=config["output"]),
-        expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
+        expand("{out}/locations_{prefix}.csv",prefix=input_files.prefix,  out=config["output"]), 
+        expand("{out}/{prefix}_homozygosity.csv", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/{prefix}_founder.hom", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/{prefix}_all_common.csv", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/{prefix}_common_without_paternal_homozygosity.csv", prefix=input_files.prefix, out=config["output"])
 
 
 rule filter:
@@ -180,7 +180,7 @@ rule merge_linked:
     input:
         linked = expand("{{outputdir}}/{{prefix}}_locations_{chr}.csv", chr=expand_chromosomes(get_chr_nr(config["species"])))
     output:
-        linked = "{outputdir}/{prefix}_locations.csv"
+        linked = "{outputdir}/locations_{prefix}.csv"
     resources:
         mem="900M",
         time="00:05:04",
