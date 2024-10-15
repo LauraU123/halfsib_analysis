@@ -53,8 +53,8 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
     y_ticks = ax.get_yticks()
     extra_lines = []
     for i in range(len(y_ticks)-1):
-        extra_lines.append(y_ticks[i] + y_ticks[i+1]/2)
-        extra_lines.append(y_ticks[i] - y_ticks[i+1]/2)
+        extra_lines.append((y_ticks[i] + y_ticks[i+1])/2)
+        extra_lines.append((y_ticks[i] - y_ticks[i+1])/2)
 
     all_lines = np.sort(np.concatenate((y_ticks, extra_lines)))
     for y in all_lines:
