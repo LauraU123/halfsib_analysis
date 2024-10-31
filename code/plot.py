@@ -33,7 +33,7 @@ def plotting(chr_file, chr_nr, locations, homozyg, output):
         else:
             print(f"No variant on chromosome {run}")
     # add homozygosity in paternal haplotypes in red
-    for run in range(1, 30):
+    for run in range(1, int(chr_nr)+1):
         subset = homozygosity[homozygosity['CHR'] == run]
         if len(subset) > 0:
             for _, row in subset.iterrows():
