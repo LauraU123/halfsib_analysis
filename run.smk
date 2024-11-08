@@ -249,6 +249,7 @@ rule homozygosity:
         snp = config["homozygosity_params"]["snp"],
         window_missing = config["homozygosity_params"]["window_missing"],
         window_snp = config["homozygosity_params"]["window_snp"]
+        window_het = config["homozygosity_params"]["window_het"]
     resources:
         mem="900M",
         time="00:05:03",
@@ -256,7 +257,7 @@ rule homozygosity:
     shell:
         """
         module load PLINK 
-        plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density {params.density} --homozyg-kb {params.kb} --homozyg-snp {params.snp} --homozyg-window-missing {params.window_missing} --homozyg-window-snp {params.window_snp} --out {params.output}
+        plink --bfile {params.input_} --homozyg --chr-set {params.chrs} --homozyg-density {params.density} --homozyg-kb {params.kb} --homozyg-snp {params.snp} --homozyg-window-missing {params.window_missing} --homozyg-window-snp {params.window_snp} --homozyg-window-het {params.window_het} --out {params.output}
         """
 
 rule reformat_homozygosity:
