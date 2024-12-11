@@ -2,8 +2,10 @@
 # output folders
 input: "/data/projects/p921_Genetic_characterisation_of_mutations_leading_to_the_development_of_a_rudimentary_extra_pair_of_limbs_in_domestic_animals/halfsib_analysis/halfsib_analysis/data/newfolder/"
 output: "results/test1"
-
+program_folder: "/data/groups/itz/tools/halfsib_analysis/"
 species: "cow"
+
+
 
 filter:
   me: 0.05 0.1

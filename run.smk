@@ -1,11 +1,11 @@
 
 inputdir = config["input"]
 outputdir = config["output"]
+program_folder = config["program_folder"]
 #expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
 if inputdir[-1] == "/":
     inputdir = inputdir[:-1]
-#    print(inputdir)
 if outputdir[-1] == "/":
     outputdir = outputdir[:-1]
 
@@ -111,7 +111,7 @@ rule rename_genes:
         cpus=1
     shell:
         """
-        python3 code/rename_genes.py \
+        python3 {program_folder}/code/rename_genes.py \
         --input {input.input_} \
         --output {output.filtered_csv}
         """
@@ -134,7 +134,7 @@ rule paternal_haplotypes:
         cpus=3
     shell:
         """
-        python3 code/halfsib_paternal_haplotypes.py \
+        python3 {program_folder}/code/halfsib_paternal_haplotypes.py \
         --ped {input.ped} \
         --output {output.paternal_haplotypes} \
         --markers {input.gene_map} \
@@ -163,7 +163,7 @@ rule linked_haplotypes:
         cpus=2
     shell:
         """
-        python3 code/common_locations.py \
+        python3 {program_folder}/code/common_locations.py \
         --map {input.map_} \
         --hapl {input.haplotype} \
         --min_markers {params.min_markers} \
@@ -205,7 +205,7 @@ rule filter_founder:
         cpus=1
     shell:
         """
-        python3 code/founder.py \
+        python3 {program_folder}/code/founder.py \
         --input {input} \
         --output {output}
         """
@@ -273,7 +273,7 @@ rule reformat_homozygosity:
         cpus=1
     shell:
         """
-        python3 code/homozygosity.py \
+        python3 {program_folder}/code/homozygosity.py \
         --input {input.input_} \
         --output {output.output}
         """
@@ -293,7 +293,7 @@ rule output_table:
         cpus=1
     shell:
         """
-        python3 code/write_tables.py \
+        python3 {program_folder}/code/write_tables.py \
         --homozygosity {input.homozygous} \
         --linked {input.linked} \
         --with_homozyg {output.all_common} \
@@ -318,7 +318,7 @@ rule plot:
     shell:
         """
         module load matplotlib
-        python3 code/plot.py \
+        python3 {program_folder}/code/plot.py \
         --chr_file {input.chr_map} \
         --chr_nr {params.chrs} \
         --linked {input.linked} \

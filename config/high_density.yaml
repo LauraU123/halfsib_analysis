@@ -2,8 +2,8 @@
 # output folders
 input: "example2WGS"
 output: "results/example2WGS"
-
-species: "cow"
+program_folder: "/data/groups/itz/tools/halfsib_analysis/"
+species: "dog"
 
 # input data folder
 data_dir: "data/"
