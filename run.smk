@@ -248,7 +248,7 @@ rule homozygosity:
         kb = config["homozygosity_params"]["kb"],
         snp = config["homozygosity_params"]["snp"],
         window_missing = config["homozygosity_params"]["window_missing"],
-        window_snp = config["homozygosity_params"]["window_snp"]
+        window_snp = config["homozygosity_params"]["window_snp"],
         window_het = config["homozygosity_params"]["window_het"]
     resources:
         mem="900M",
