@@ -39,7 +39,7 @@ rule all:
         expand("{out}/locations_{prefix}.csv",prefix=input_files.prefix,  out=config["output"]), 
         expand("{out}/{prefix}_homozygosity.csv", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_plot.pdf", prefix=input_files.prefix, out=config["output"]),
-        expand("{out}/{prefix}_founder.hom", prefix=input_files.prefix, out=config["output"]),
+        expand("{out}/plinkfiles/{prefix}_founder.hom", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_all_common.csv", prefix=input_files.prefix, out=config["output"]),
         expand("{out}/{prefix}_common_without_paternal_homozygosity.csv", prefix=input_files.prefix, out=config["output"])
 
@@ -52,12 +52,12 @@ rule filter:
         lgen = f"{inputdir}/{{prefix}}.bim", 
         sample = f"{inputdir}/{{prefix}}.fam"
     output:
-        bam = outputdir + "/{prefix}_filtered.bed",
-        bim = outputdir + "/{prefix}_filtered.bim",
-        fam = outputdir + "/{prefix}_filtered.fam"
+        bam = outputdir + "/plinkfiles/{prefix}_filtered.bed",
+        bim = outputdir + "/plinkfiles/{prefix}_filtered.bim",
+        fam = outputdir + "/plinkfiles/{prefix}_filtered.fam"
     params:
         name = lambda wc :  f"{inputdir}/{wc.prefix}",
-        output =  outputdir + "/{prefix}_filtered",
+        output =  outputdir + "/plinkfiles/{prefix}_filtered",
         chrs = get_chr_nr(config["species"]),
         maf = config["filter"]["maf"],
         mind = config["filter"]["mind"],
@@ -80,11 +80,11 @@ rule recode:
     input:
         input_ = rules.filter.output.bim
     output:
-        output = ("{outputdir}/{prefix}_recoded.ped"),
-        map_ = (  "{outputdir}/{prefix}_recoded.map")
+        output = ("{outputdir}/plinkfiles/{prefix}_recoded.ped"),
+        map_ = (  "{outputdir}/plinkfiles/{prefix}_recoded.map")
     params:
-        input_ =  "{outputdir}/{prefix}_filtered",
-        output =  "{outputdir}/{prefix}_recoded",
+        input_ =  "{outputdir}/plinkfiles/{prefix}_filtered",
+        output =  "{outputdir}/plinkfiles/{prefix}_recoded",
         chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
@@ -101,9 +101,9 @@ rule rename_genes:
     message:
         """ Renaming genes to standardised format.  map  -> csv """
     input:
-        input_ = "{outputdir}/{prefix}_filtered.bim"
+        input_ = "{outputdir}/plinkfiles/{prefix}_filtered.bim"
     output:
-        filtered_csv = "{outputdir}/{prefix}_filtered.csv"
+        filtered_csv = "{outputdir}/plinkfiles/{prefix}_filtered.csv"
     resources:
         mem="4G",
         time="00:06:06",
@@ -214,13 +214,13 @@ rule founder:
     message:
         """Filtering non-founder data based on provided ID list"""
     input:
-        input_ =  "{outputdir}/{prefix}_recoded.map",
+        input_ =  "{outputdir}/plinkfiles/{prefix}_recoded.map",
         ids_to_remove = rules.filter_founder.output
     output:
-        output = "{outputdir}/{prefix}_founder.bed"
+        output = "{outputdir}/plinkfiles/{prefix}_founder.bed"
     params:
-        in_ =  "{outputdir}/{prefix}_recoded",
-        out = "{outputdir}/{prefix}_founder",
+        in_ =  "{outputdir}/plinkfiles/{prefix}_recoded",
+        out = "{outputdir}/plinkfiles/{prefix}_founder",
         chrs = get_chr_nr(config["species"])
     resources:
         mem="900M",
@@ -238,10 +238,10 @@ rule homozygosity:
     input:
         input = rules.founder.output.output
     output:
-        output = "{outputdir}/{prefix}_founder.hom"
+        output = "{outputdir}/plinkfiles/{prefix}_founder.hom"
     params:
-        input_ = "{outputdir}/{prefix}_founder",
-        output = "{outputdir}/{prefix}_founder",
+        input_ = "{outputdir}/plinkfiles/{prefix}_founder",
+        output = "{outputdir}/plinkfiles/{prefix}_founder",
         chrs = get_chr_nr(config["species"]),
         density = config["homozygosity_params"]["density"],
         kb = config["homozygosity_params"]["kb"],
