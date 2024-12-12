@@ -124,7 +124,7 @@ rule paternal_haplotypes:
         ped = rules.recode.output.output,
         gene_map = rules.rename_genes.output.filtered_csv
     output:
-        paternal_haplotypes = "{outputdir}/{prefix}_{chr}_output.csv"
+        paternal_haplotypes = "{outputdir}/haplotypes/{prefix}_{chr}_output.csv"
     params:
         folder = "{outputdir}/",
         chromosomes = lambda wc: wc.get('chr')
@@ -307,6 +307,7 @@ rule plot:
         linked = rules.merge_linked.output,
         chr_map = "/data/groups/itz/tools/halfsib_analysis/chr_maps/" + config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
+        linked_singular = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
     output:
         plot = "{outputdir}/{prefix}_plot.pdf"
     resources:
@@ -324,20 +325,23 @@ rule plot:
         --linked {input.linked} \
         --homozyg {input.homozyg} \
         --plot {output.plot}
+        rm -f {input.linked_singular}
         """
 
-rule cleanup:
-    input:
-        a= expand("{outputdir}/{prefix}_locations.csv",  outputdir=config["output"], prefix=input_files.prefix), 
-        b= expand("{outputdir}/{prefix}_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-        c = expand("{outputdir}/{prefix}_plot.pdf", outputdir=config["output"], prefix=input_files.prefix),
-        e = expand("{outputdir}/{prefix}_all_common.csv", outputdir=config["output"], prefix=input_files.prefix),
-        f = expand( "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-        linked = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
-        haplotypes = expand("{outputdir}/{prefix}_{chr}_output.csv", outputdir = config["output"], prefix=input_files.prefix, chr=expand_chromosomes(get_chr_nr(config["species"])))
-    resources:
-        mem="500M",
-        time="00:05:05",
-        cpus=1
-    shell:
-        "rm -f {input.linked} {input.haplotypes}"     
+#rule cleanup:
+#    input:
+#        a= expand("{outputdir}/{prefix}_locations.csv",  outputdir=config["output"], prefix=input_files.prefix), 
+#        b= expand("{outputdir}/{prefix}_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
+#        c = expand("{outputdir}/{prefix}_plot.pdf", outputdir=config["output"], prefix=input_files.prefix),
+#        e = expand("{outputdir}/{prefix}_all_common.csv", outputdir=config["output"], prefix=input_files.prefix),
+#        f = expand( "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
+#        linked = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
+#        haplotypes = expand("{outputdir}/{prefix}_{chr}_output.csv", outputdir = config["output"], prefix=input_files.prefix, chr=expand_chromosomes(get_chr_nr(config["species"])))
+#    resources:
+#        mem="500M",
+#        time="00:05:05",
+#        cpus=1
+#    shell:
+#        """
+#        rm -f {input.linked} 
+#        """     
