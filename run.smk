@@ -2,7 +2,6 @@
 inputdir = config["input"]
 outputdir = config["output"]
 program_folder = config["program_folder"]
-#expand("{out}/filtered.fam", out=config["output"], prefix=input_files.prefix)
 
 if inputdir[-1] == "/":
     inputdir = inputdir[:-1]
@@ -305,7 +304,7 @@ rule plot:
         """constructing chromosome map plot with homozygosity and linked haplotypes"""
     input:
         linked = rules.merge_linked.output,
-        chr_map = "/data/groups/itz/tools/halfsib_analysis/chr_maps/" + config['species'] + "_chr_map.csv",
+        chr_map = f"{program_folder}/chr_maps/" + config['species'] + "_chr_map.csv",
         homozyg = rules.reformat_homozygosity.output,
         linked_singular = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
     output:
@@ -328,20 +327,3 @@ rule plot:
         rm -f {input.linked_singular}
         """
 
-#rule cleanup:
-#    input:
-#        a= expand("{outputdir}/{prefix}_locations.csv",  outputdir=config["output"], prefix=input_files.prefix), 
-#        b= expand("{outputdir}/{prefix}_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-#        c = expand("{outputdir}/{prefix}_plot.pdf", outputdir=config["output"], prefix=input_files.prefix),
-#        e = expand("{outputdir}/{prefix}_all_common.csv", outputdir=config["output"], prefix=input_files.prefix),
-#        f = expand( "{outputdir}/{prefix}_common_without_paternal_homozygosity.csv", outputdir=config["output"], prefix=input_files.prefix),
-#        linked = expand("{outputdir}/{prefix}_locations_{chr}.csv", outputdir = config["output"],prefix=input_files.prefix,  chr=expand_chromosomes(get_chr_nr(config["species"]))),
-#        haplotypes = expand("{outputdir}/{prefix}_{chr}_output.csv", outputdir = config["output"], prefix=input_files.prefix, chr=expand_chromosomes(get_chr_nr(config["species"])))
-#    resources:
-#        mem="500M",
-#        time="00:05:05",
-#        cpus=1
-#    shell:
-#        """
-#        rm -f {input.linked} 
-#        """     
