@@ -8,4 +8,4 @@ while getopts "c:" opt; do
     esac
 done
 
-snakemake --cores all -F --configfile "${configfile:-medium_density.yaml}" -s run.smk --jobs 15 #--cluster "sbatch -ppibu_el8  --mem={resources.mem} --cpus-per-task={threads} --time={resources.time}" --latency-wait 30
+snakemake --cores all --configfile "${configfile:-medium_density.yaml}" -s run.smk --jobs 15 --cluster "sbatch -ppibu_el8  --mem={resources.mem} --cpus-per-task={threads} --time={resources.time}" --latency-wait 30
